@@ -12,3 +12,8 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 ## onnxモデルの配置方法
 - `models/daberta.onnx` - DaBertaのonnxモデル
 - `models/sbv2.onnx` - `Style-Bert-ViT2`の本体
+
+## Todo
+- [ ] WebAPIの実装
+- [ ] Rustライブラリの実装
+- [ ] 余裕があればPyO3使ってPythonで利用可能にする
