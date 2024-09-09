@@ -3,6 +3,7 @@ use jpreprocess::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashSet;
+use std::sync::Arc;
 use tokenizers::Tokenizer;
 
 type JPreprocessType = JPreprocess<DefaultFetcher>;
@@ -42,13 +43,34 @@ macro_rules! hash_set {
 }
 
 pub struct JTalk {
-    pub jpreprocess: JPreprocessType,
+    pub jpreprocess: Arc<JPreprocessType>,
 }
 
 impl JTalk {
     pub fn new() -> Result<Self> {
-        let jpreprocess = get_jtalk()?;
+        let jpreprocess = Arc::new(get_jtalk()?);
         Ok(Self { jpreprocess })
+    }
+
+    pub fn g2p(&self, text: &str) -> Result<()> {
+        let parsed = self.jpreprocess.run_frontend(text)?;
+        let jtalk_process = JTalkProcess::new(Arc::clone(&self.jpreprocess), parsed);
+        jtalk_process.g2p()?;
+        Ok(())
+    }
+}
+
+struct JTalkProcess {
+    jpreprocess: Arc<JPreprocessType>,
+    parsed: Vec<String>,
+}
+
+impl JTalkProcess {
+    fn new(jpreprocess: Arc<JPreprocessType>, parsed: Vec<String>) -> Self {
+        Self {
+            jpreprocess,
+            parsed,
+        }
     }
 
     fn fix_phone_tone(&self, phone_tone_list: Vec<(String, i32)>) -> Result<Vec<(String, i32)>> {
@@ -78,13 +100,31 @@ impl JTalk {
         }
     }
 
-    pub fn g2p(&self, text: &str) -> Result<()> {
-        let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct(text)?;
+    pub fn g2p(&self) -> Result<()> {
+        let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct()?;
+        self.text_to_seq_kata()?;
         Ok(())
     }
 
-    fn g2phone_tone_wo_punct(&self, text: &str) -> Result<Vec<(String, i32)>> {
-        let prosodies = self.g2p_prosody(text)?;
+    fn text_to_seq_kata(&self) -> Result<()> {
+        // let seq_kata: Vec<_> = vec![];
+        // let seq_text: Vec<_> = vec![];
+
+        for parts in &self.parsed {
+            let (string, mut pron) = self.parse_to_string_and_pron(parts.clone());
+            println!("{} {}", string, pron);
+            pron = pron.replace("’", "");
+        }
+        Ok(())
+    }
+
+    fn parse_to_string_and_pron(&self, parts: String) -> (String, String) {
+        let part_lists: Vec<String> = parts.split(",").map(|x| x.to_string()).collect();
+        (part_lists[0].clone(), part_lists[9].clone())
+    }
+
+    fn g2phone_tone_wo_punct(&self) -> Result<Vec<(String, i32)>> {
+        let prosodies = self.g2p_prosody()?;
 
         let mut results: Vec<(String, i32)> = Vec::new();
         let mut current_phrase: Vec<(String, i32)> = Vec::new();
@@ -117,8 +157,8 @@ impl JTalk {
         Ok(results)
     }
 
-    fn g2p_prosody(&self, text: &str) -> Result<Vec<String>> {
-        let labels = self.jpreprocess.extract_fullcontext(text)?;
+    fn g2p_prosody(&self) -> Result<Vec<String>> {
+        let labels = self.jpreprocess.make_label(self.parsed.clone());
 
         let mut phones: Vec<String> = Vec::new();
         for (i, label) in labels.iter().enumerate() {
@@ -177,7 +217,6 @@ pub fn normalize_text(text: &str) -> String {
     // 日本語のテキストを正規化する
     let text = text.replace('~', "ー");
     let text = text.replace('～', "ー");
-    
 
     text.replace('〜', "ー")
 }
