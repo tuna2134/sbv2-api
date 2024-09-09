@@ -110,7 +110,7 @@ impl JTalkProcess {
         }
     }
 
-    pub fn g2p(&self) -> Result<()> {
+    pub fn g2p(&self) -> Result<(Vec<String>, Vec<i32>, Vec<i32>)> {
         let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct()?;
         let (seq_text, seq_kata) = self.text_to_seq_kata()?;
         let sep_phonemes = JTalkProcess::handle_long(
@@ -119,9 +119,85 @@ impl JTalkProcess {
                 .map(|x| JTalkProcess::kata_to_phoneme_list(x.clone()).unwrap())
                 .collect(),
         );
-        println!("{:?}", sep_phonemes);
-        println!("{:?}", seq_kata);
-        Ok(())
+        // println!("{:?}", sep_phonemes);
+        let phone_w_punct: Vec<String> = sep_phonemes
+            .iter()
+            .flat_map(|x| x.iter())
+            .map(|x| x.clone())
+            .collect();
+        // println!("{:?}", phone_w_punct);
+
+        let mut phone_tone_list =
+            JTalkProcess::align_tones(phone_w_punct, phone_tone_list_wo_punct)?;
+        println!("{:?}", phone_tone_list);
+
+        let mut sep_tokenized: Vec<Vec<String>> = Vec::new();
+        for i in 0..seq_text.len() {
+            let text = seq_text[i].clone();
+            if !PUNCTUATIONS.contains(&text.as_str()) {
+                sep_tokenized.push(text.chars().map(|x| x.to_string()).collect());
+            } else {
+                sep_tokenized.push(vec![text]);
+            }
+        }
+
+        let mut word2ph = Vec::new();
+        for (token, phoneme) in sep_tokenized.iter().zip(sep_phonemes.iter()) {
+            let phone_len = phoneme.len() as i32;
+            let word_len = token.len() as i32;
+            word2ph.extend(JTalkProcess::distribute_phone(phone_len, word_len));
+        }
+
+        let mut new_phone_tone_list = vec![("_".to_string(), 0)];
+        new_phone_tone_list.append(&mut phone_tone_list);
+        new_phone_tone_list.push(("_".to_string(), 0));
+
+        let mut word2ph = vec![1];
+        word2ph.append(&mut word2ph.clone());
+        word2ph.push(1);
+
+        let phones: Vec<String> = new_phone_tone_list
+            .iter()
+            .map(|(x, _)| x.clone())
+            .collect();
+        let tones: Vec<i32> = new_phone_tone_list.iter().map(|(_, x)| *x).collect();
+
+        Ok((phones, tones, word2ph))
+    }
+
+    fn distribute_phone(n_phone: i32, n_word: i32) -> Vec<i32> {
+        let mut phones_per_word = vec![0; n_word as usize];
+        for _ in 0..n_phone {
+            let min_task = phones_per_word.iter().min().unwrap();
+            let min_index = phones_per_word
+                .iter()
+                .position(|&x| x == *min_task)
+                .unwrap();
+            phones_per_word[min_index] += 1;
+        }
+        phones_per_word
+    }
+
+    fn align_tones(
+        phone_with_punct: Vec<String>,
+        phone_tone_list: Vec<(String, i32)>,
+    ) -> Result<Vec<(String, i32)>> {
+        let mut result: Vec<(String, i32)> = Vec::new();
+        let mut tone_index = 0;
+        for phone in phone_with_punct {
+            if tone_index >= phone_tone_list.len() {
+                result.push((phone, 0));
+            } else if phone == phone_tone_list[tone_index].0 {
+                result.push((phone, phone_tone_list[tone_index].1));
+                tone_index += 1;
+            } else if PUNCTUATIONS.contains(&phone.as_str()) {
+                result.push((phone, 0));
+            } else {
+                return Err(Error::ValueError(format!("Mismatched phoneme: {}", phone)));
+            }
+        }
+
+        Ok(result)
     }
 
     fn handle_long(mut sep_phonemes: Vec<Vec<String>>) -> Vec<Vec<String>> {
