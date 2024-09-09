@@ -103,7 +103,7 @@ impl JTalkProcess {
 
     pub fn g2p(&self) -> Result<()> {
         let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct()?;
-        self.text_to_seq_kata()?;
+        let (seq_text, seq_kata) = self.text_to_seq_kata()?;
         Ok(())
     }
 
