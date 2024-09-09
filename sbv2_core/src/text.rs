@@ -156,10 +156,7 @@ impl JTalkProcess {
         word2ph.append(&mut word2ph.clone());
         word2ph.push(1);
 
-        let phones: Vec<String> = new_phone_tone_list
-            .iter()
-            .map(|(x, _)| x.clone())
-            .collect();
+        let phones: Vec<String> = new_phone_tone_list.iter().map(|(x, _)| x.clone()).collect();
         let tones: Vec<i32> = new_phone_tone_list.iter().map(|(_, x)| *x).collect();
 
         Ok((phones, tones, word2ph))
