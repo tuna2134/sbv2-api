@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,10 +25,16 @@ static MORA_LIST_ADDITIONAL: Lazy<Vec<Mora>> = Lazy::new(|| {
     data.additional
 });
 
-pub static MORA_KATA_TO_MORA_PHONEMES: Lazy<HashMap<String, (Option<String>, String)>> = Lazy::new(|| {
-    let mut map = HashMap::new();
-    for mora in MORA_LIST_MINIMUM.iter().chain(MORA_LIST_ADDITIONAL.iter()) {
-        map.insert(mora.mora.clone(), (mora.consonant.clone(), mora.vowel.clone()));
-    }
-    map
-});
+pub static MORA_KATA_TO_MORA_PHONEMES: Lazy<HashMap<String, (Option<String>, String)>> =
+    Lazy::new(|| {
+        let mut map = HashMap::new();
+        for mora in MORA_LIST_MINIMUM.iter().chain(MORA_LIST_ADDITIONAL.iter()) {
+            map.insert(
+                mora.mora.clone(),
+                (mora.consonant.clone(), mora.vowel.clone()),
+            );
+        }
+        map
+    });
+
+pub const VOWELS: [&str; 6] = ["a", "i", "u", "e", "o", "N"];

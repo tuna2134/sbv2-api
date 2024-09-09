@@ -1,6 +1,6 @@
 use crate::error::{Error, Result};
+use crate::mora::{MORA_KATA_TO_MORA_PHONEMES, VOWELS};
 use crate::norm::{replace_punctuation, PUNCTUATIONS};
-use crate::mora::MORA_KATA_TO_MORA_PHONEMES;
 use jpreprocess::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -113,23 +113,44 @@ impl JTalkProcess {
     pub fn g2p(&self) -> Result<()> {
         let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct()?;
         let (seq_text, seq_kata) = self.text_to_seq_kata()?;
-        println!("{:?}", seq_text);
+        let sep_phonemes = JTalkProcess::handle_long(
+            seq_kata
+                .iter()
+                .map(|x| JTalkProcess::kata_to_phoneme_list(x.clone()).unwrap())
+                .collect(),
+        );
+        println!("{:?}", sep_phonemes);
         println!("{:?}", seq_kata);
         Ok(())
     }
 
-    fn handle_long(sep_phonemes: Vec<Vec<String>>) -> Vec<Vec<String>> {
-        for (i, phonemes) in sep_phonemes.iter().enumerate() {
-            if phonemes.len() == 0 {
+    fn handle_long(mut sep_phonemes: Vec<Vec<String>>) -> Vec<Vec<String>> {
+        for i in 0..sep_phonemes.len() {
+            if sep_phonemes[i].len() == 0 {
                 continue;
             }
-            if phonemes[0] == "ー" {
+            if sep_phonemes[i][0] == "ー" {
                 if i != 0 {
                     let prev_phoneme = sep_phonemes[i - 1].last().unwrap();
+                    if VOWELS.contains(&prev_phoneme.as_str()) {
+                        sep_phonemes[i][0] = prev_phoneme.clone();
+                    } else {
+                        sep_phonemes[i][0] = "ー".to_string();
+                    }
+                } else {
+                    sep_phonemes[i][0] = "ー".to_string();
+                }
+            }
+            if sep_phonemes[i].contains(&"ー".to_string()) {
+                for e in 0..sep_phonemes[i].len() {
+                    if sep_phonemes[i][e] == "ー" {
+                        sep_phonemes[i][e] =
+                            sep_phonemes[i][e - 1].chars().last().unwrap().to_string();
+                    }
                 }
             }
         }
-        vec![]
+        sep_phonemes
     }
 
     fn kata_to_phoneme_list(mut text: String) -> Result<Vec<String>> {
@@ -157,8 +178,11 @@ impl JTalkProcess {
         if PUNCTUATIONS.contains(&text.as_str()) {
             return Ok(text.chars().map(|x| x.to_string()).collect());
         }
-        if KATAKANA_PATTERN.is_match(&text) {
-            return Err(Error::ValueError(format!("Input must be katakana only: {}", text)));
+        if !KATAKANA_PATTERN.is_match(&text) {
+            return Err(Error::ValueError(format!(
+                "Input must be katakana only: {}",
+                text
+            )));
         }
 
         fn mora2phonemes(mora: &str) -> String {
@@ -182,7 +206,9 @@ impl JTalkProcess {
             }
             result
         };
-        text = LONG_PATTERN.replace_all(&text, long_replacement).to_string();
+        text = LONG_PATTERN
+            .replace_all(&text, long_replacement)
+            .to_string();
 
         return Ok(text.trim().split(" ").map(|x| x.to_string()).collect());
     }
