@@ -126,7 +126,7 @@ impl JTalkProcess {
 
     fn handle_long(mut sep_phonemes: Vec<Vec<String>>) -> Vec<Vec<String>> {
         for i in 0..sep_phonemes.len() {
-            if sep_phonemes[i].len() == 0 {
+            if sep_phonemes[i].is_empty() {
                 continue;
             }
             if sep_phonemes[i][0] == "ー" {
@@ -210,7 +210,7 @@ impl JTalkProcess {
             .replace_all(&text, long_replacement)
             .to_string();
 
-        return Ok(text.trim().split(" ").map(|x| x.to_string()).collect());
+        return Ok(text.trim().split(' ').map(|x| x.to_string()).collect());
     }
 
     fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
