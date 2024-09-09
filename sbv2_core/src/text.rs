@@ -113,13 +113,13 @@ impl JTalkProcess {
         for parts in &self.parsed {
             let (string, mut pron) = self.parse_to_string_and_pron(parts.clone());
             println!("{} {}", string, pron);
-            pron = pron.replace("’", "");
+            pron = pron.replace('’', "");
         }
         Ok(())
     }
 
     fn parse_to_string_and_pron(&self, parts: String) -> (String, String) {
-        let part_lists: Vec<String> = parts.split(",").map(|x| x.to_string()).collect();
+        let part_lists: Vec<String> = parts.split(',').map(|x| x.to_string()).collect();
         (part_lists[0].clone(), part_lists[9].clone())
     }
 
