@@ -54,11 +54,11 @@ impl JTalk {
     fn fix_phone_tone(&self, phone_tone_list: Vec<(String, i32)>) -> Result<Vec<(String, i32)>> {
         let tone_values: HashSet<i32> = phone_tone_list
             .iter()
-            .map(|(_letter, tone)| tone.clone())
+            .map(|(_letter, tone)| *tone)
             .collect();
         if tone_values.len() == 1 {
             assert!(tone_values == hash_set![0], "{:?}", tone_values);
-            return Ok(phone_tone_list);
+            Ok(phone_tone_list)
         } else if tone_values.len() == 2 {
             if tone_values == hash_set![0, 1] {
                 return Ok(phone_tone_list);
@@ -93,9 +93,9 @@ impl JTalk {
         for (i, letter) in prosodies.iter().enumerate() {
             if letter == "^" {
                 assert!(i == 0);
-            } else if vec!["$", "?", "_", "#"].contains(&letter.as_str()) {
+            } else if ["$", "?", "_", "#"].contains(&letter.as_str()) {
                 results.extend(self.fix_phone_tone(current_phrase.clone())?);
-                if vec!["$", "?"].contains(&letter.as_str()) {
+                if ["$", "?"].contains(&letter.as_str()) {
                     assert!(i == prosodies.len() - 1);
                 }
                 current_phrase = Vec::new();
@@ -175,11 +175,11 @@ impl JTalk {
 
 pub fn normalize_text(text: &str) -> String {
     // 日本語のテキストを正規化する
-    let text = text.replace("~", "ー");
-    let text = text.replace("～", "ー");
-    let text = text.replace("〜", "ー");
+    let text = text.replace('~', "ー");
+    let text = text.replace('～', "ー");
+    
 
-    text
+    text.replace('〜', "ー")
 }
 
 pub fn get_tokenizer() -> Result<Tokenizer> {

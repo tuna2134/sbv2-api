@@ -7,8 +7,8 @@ fn main() -> error::Result<()> {
     println!("{}", normalized_text);
 
     let jtalk = text::JTalk::new()?;
-    let phones = jtalk.g2p(&normalized_text)?;
-    println!("{:?}", phones);
+    jtalk.g2p(&normalized_text)?;
+    println!("{:?}", ());
 
     let tokenizer = text::get_tokenizer()?;
     println!("{:?}", tokenizer);
