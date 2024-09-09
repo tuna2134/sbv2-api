@@ -1,5 +1,6 @@
 use crate::error::{Error, Result};
 use crate::norm::{replace_punctuation, PUNCTUATIONS};
+use crate::mora::MORA_KATA_TO_MORA_PHONEMES;
 use jpreprocess::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -61,6 +62,14 @@ impl JTalk {
     }
 }
 
+static KATAKANA_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u30A0-\u30FF]+").unwrap());
+static MORA_PATTERN: Lazy<Vec<String>> = Lazy::new(|| {
+    let mut sorted_keys: Vec<String> = MORA_KATA_TO_MORA_PHONEMES.keys().cloned().collect();
+    sorted_keys.sort_by(|a, b| b.len().cmp(&a.len()));
+    sorted_keys
+});
+static LONG_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\w)(ー*)").unwrap());
+
 struct JTalkProcess {
     jpreprocess: Arc<JPreprocessType>,
     parsed: Vec<String>,
@@ -104,7 +113,78 @@ impl JTalkProcess {
     pub fn g2p(&self) -> Result<()> {
         let phone_tone_list_wo_punct = self.g2phone_tone_wo_punct()?;
         let (seq_text, seq_kata) = self.text_to_seq_kata()?;
+        println!("{:?}", seq_text);
+        println!("{:?}", seq_kata);
         Ok(())
+    }
+
+    fn handle_long(sep_phonemes: Vec<Vec<String>>) -> Vec<Vec<String>> {
+        for (i, phonemes) in sep_phonemes.iter().enumerate() {
+            if phonemes.len() == 0 {
+                continue;
+            }
+            if phonemes[0] == "ー" {
+                if i != 0 {
+                    let prev_phoneme = sep_phonemes[i - 1].last().unwrap();
+                }
+            }
+        }
+        vec![]
+    }
+
+    fn kata_to_phoneme_list(mut text: String) -> Result<Vec<String>> {
+        /*
+        if set(text).issubset(set(PUNCTUATIONS)):
+            return list(text)
+        # `text` がカタカナ（`ー`含む）のみからなるかどうかをチェック
+        if __KATAKANA_PATTERN.fullmatch(text) is None:
+            raise ValueError(f"Input must be katakana only: {text}")
+
+        def mora2phonemes(mora: str) -> str:
+            consonant, vowel = MORA_KATA_TO_MORA_PHONEMES[mora]
+            if consonant is None:
+                return f" {vowel}"
+            return f" {consonant} {vowel}"
+
+        spaced_phonemes = __MORA_PATTERN.sub(lambda m: mora2phonemes(m.group()), text)
+
+        # 長音記号「ー」の処理
+        long_replacement = lambda m: m.group(1) + (" " + m.group(1)) * len(m.group(2))  # type: ignore
+        spaced_phonemes = __LONG_PATTERN.sub(long_replacement, spaced_phonemes)
+
+        return spaced_phonemes.strip().split(" ")
+        */
+        if PUNCTUATIONS.contains(&text.as_str()) {
+            return Ok(text.chars().map(|x| x.to_string()).collect());
+        }
+        if KATAKANA_PATTERN.is_match(&text) {
+            return Err(Error::ValueError(format!("Input must be katakana only: {}", text)));
+        }
+
+        fn mora2phonemes(mora: &str) -> String {
+            let (consonant, vowel) = MORA_KATA_TO_MORA_PHONEMES.get(mora).unwrap();
+            if consonant.is_none() {
+                return format!(" {}", vowel);
+            }
+            format!(" {} {}", consonant.as_ref().unwrap(), vowel)
+        }
+
+        for mora in MORA_PATTERN.iter() {
+            let mora = mora.to_string();
+            let phonemes = mora2phonemes(&mora);
+            text = text.replace(&mora, &phonemes);
+        }
+
+        let long_replacement = |m: &regex::Captures| {
+            let mut result = m.get(1).unwrap().as_str().to_string();
+            for _ in 0..m.get(2).unwrap().as_str().len() {
+                result += &format!(" {}", m.get(1).unwrap().as_str());
+            }
+            result
+        };
+        text = LONG_PATTERN.replace_all(&text, long_replacement).to_string();
+
+        return Ok(text.trim().split(" ").map(|x| x.to_string()).collect());
     }
 
     fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {

@@ -2,6 +2,7 @@ pub mod bert;
 pub mod error;
 pub mod norm;
 pub mod text;
+pub mod mora;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
