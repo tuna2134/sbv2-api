@@ -1,4 +1,5 @@
 use crate::error::{Error, Result};
+use crate::norm::{replace_punctuation, PUNCTUATIONS};
 use jpreprocess::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -106,16 +107,29 @@ impl JTalkProcess {
         Ok(())
     }
 
-    fn text_to_seq_kata(&self) -> Result<()> {
-        // let seq_kata: Vec<_> = vec![];
-        // let seq_text: Vec<_> = vec![];
+    fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
+        let mut seq_kata = vec![];
+        let mut seq_text = vec![];
 
         for parts in &self.parsed {
-            let (string, mut pron) = self.parse_to_string_and_pron(parts.clone());
-            println!("{} {}", string, pron);
-            pron = pron.replace('’', "");
+            let (string, pron) = self.parse_to_string_and_pron(parts.clone());
+            let mut yomi = pron.replace('’', "");
+            let word = replace_punctuation(string);
+            assert!(yomi != "", "Empty yomi: {}", word);
+            if yomi == "、" {
+                if !word.chars().all(|x| PUNCTUATIONS.contains(&x.to_string().as_str())) {
+                    yomi = "'".repeat(word.len());
+                } else {
+                    yomi = word.clone();
+                }
+            } else if yomi == "？" {
+                assert!(word == "?", "yomi `？` comes from: {}", word);
+                yomi = "?".to_string();
+            }
+            seq_text.push(word);
+            seq_kata.push(yomi);
         }
-        Ok(())
+        Ok((seq_text, seq_kata))
     }
 
     fn parse_to_string_and_pron(&self, parts: String) -> (String, String) {

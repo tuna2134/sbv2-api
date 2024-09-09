@@ -1,7 +1,6 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
-
 static REPLACE_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     let mut map = HashMap::new();
     map.insert("：", ",");
@@ -69,14 +68,15 @@ __PUNCTUATION_CLEANUP_PATTERN = re.compile(
     + "".join(PUNCTUATIONS) + r"]+",  # fmt: skip
 )
 */
+
+pub static PUNCTUATIONS: [&str; 7] = ["!", "?", "…", ",", ".", "'", "-"];
 static PUNCTUATION_CLEANUP_PATTERN: Lazy<regex::Regex> = Lazy::new(|| {
-    let pattern = (
-        r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}".to_owned()
+    let pattern = (r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}"
+        .to_owned()
         + r"\u{0041}-\u{005A}\u{0061}-\u{007A}"
         + r"\u{FF21}-\u{FF3A}\u{FF41}-\u{FF5A}"
         + r"\u{0370}-\u{03FF}\u{1F00}-\u{1FFF}"
-        + r"[!?\u{2026},.'-]+"
-    );
+        + &PUNCTUATIONS.join("") + r"]+");
     regex::Regex::new(&pattern).unwrap()
 });
 
@@ -84,5 +84,7 @@ pub fn replace_punctuation(mut text: String) -> String {
     for (k, v) in REPLACE_MAP.iter() {
         text = text.replace(k, v);
     }
-    text.to_string()
+    PUNCTUATION_CLEANUP_PATTERN
+        .replace_all(&text, "")
+        .to_string()
 }
