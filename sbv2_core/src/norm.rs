@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 
+
 static REPLACE_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     let mut map = HashMap::new();
     map.insert("：", ",");
@@ -53,3 +54,35 @@ static REPLACE_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
 
     map
 });
+
+/*
+__PUNCTUATION_CLEANUP_PATTERN = re.compile(
+    # ↓ ひらがな、カタカナ、漢字
+    r"[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\u3400-\u4DBF\u3005"
+    # ↓ 半角アルファベット（大文字と小文字）
+    + r"\u0041-\u005A\u0061-\u007A"
+    # ↓ 全角アルファベット（大文字と小文字）
+    + r"\uFF21-\uFF3A\uFF41-\uFF5A"
+    # ↓ ギリシャ文字
+    + r"\u0370-\u03FF\u1F00-\u1FFF"
+    # ↓ "!", "?", "…", ",", ".", "'", "-", 但し`…`はすでに`...`に変換されている
+    + "".join(PUNCTUATIONS) + r"]+",  # fmt: skip
+)
+*/
+static __PUNCTUATION_CLEANUP_PATTERN: Lazy<regex::Regex> = Lazy::new(|| {
+    let pattern = (
+        r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}".to_owned()
+        + r"\u{0041}-\u{005A}\u{0061}-\u{007A}"
+        + r"\u{FF21}-\u{FF3A}\u{FF41}-\u{FF5A}"
+        + r"\u{0370}-\u{03FF}\u{1F00}-\u{1FFF}"
+        + r"[!?\u{2026},.'-]+"
+    );
+    regex::Regex::new(&pattern).unwrap()
+});
+
+pub fn replace_punctuation(mut text: String) -> String {
+    for (k, v) in REPLACE_MAP.iter() {
+        text = text.replace(k, v);
+    }
+    text.to_string()
+}
