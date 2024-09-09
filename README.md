@@ -19,5 +19,5 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
 
 ## 謝辞
-- [litagin02](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
+- [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
 - [Googlefan](https://github.com/Googlefan256) - 彼にモデルをONNXヘ変換および効率化をする方法を教わりました。
