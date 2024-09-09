@@ -97,7 +97,7 @@ impl JTalkProcess {
                 return Ok(phone_tone_list
                     .iter()
                     .map(|x| {
-                        let new_tone = if x.1 == -1 { 0 } else { x.1 };
+                        let new_tone = if x.1 == -1 { 0 } else { 1 };
                         (x.0.clone(), new_tone)
                     })
                     .collect());
