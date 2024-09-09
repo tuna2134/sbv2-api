@@ -115,7 +115,7 @@ impl JTalkProcess {
             let (string, pron) = self.parse_to_string_and_pron(parts.clone());
             let mut yomi = pron.replace('’', "");
             let word = replace_punctuation(string);
-            assert!(yomi != "", "Empty yomi: {}", word);
+            assert!(!yomi.is_empty(), "Empty yomi: {}", word);
             if yomi == "、" {
                 if !word
                     .chars()
