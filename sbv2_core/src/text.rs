@@ -54,11 +54,10 @@ impl JTalk {
         Ok(Self { jpreprocess })
     }
 
-    pub fn g2p(&self, text: &str) -> Result<()> {
+    pub fn g2p(&self, text: &str) -> Result<(Vec<String>, Vec<i32>, Vec<i32>)> {
         let parsed = self.jpreprocess.run_frontend(text)?;
         let jtalk_process = JTalkProcess::new(Arc::clone(&self.jpreprocess), parsed);
-        jtalk_process.g2p()?;
-        Ok(())
+        jtalk_process.g2p()
     }
 }
 
