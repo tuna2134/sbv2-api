@@ -4,7 +4,7 @@ use ort::{GraphOptimizationLevel, Session};
 
 pub fn load_model() -> Result<Session> {
     let session = Session::builder()?
-        .with_optimization_level(GraphOptimizationLevel::Level1)?
+        .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(1)?
         .commit_from_file("models/debert.onnx")?;
     Ok(session)
