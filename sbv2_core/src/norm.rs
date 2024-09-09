@@ -71,12 +71,13 @@ __PUNCTUATION_CLEANUP_PATTERN = re.compile(
 
 pub static PUNCTUATIONS: [&str; 7] = ["!", "?", "…", ",", ".", "'", "-"];
 static PUNCTUATION_CLEANUP_PATTERN: Lazy<regex::Regex> = Lazy::new(|| {
-    let pattern = (r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}"
+    let pattern = r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}"
         .to_owned()
         + r"\u{0041}-\u{005A}\u{0061}-\u{007A}"
         + r"\u{FF21}-\u{FF3A}\u{FF41}-\u{FF5A}"
         + r"\u{0370}-\u{03FF}\u{1F00}-\u{1FFF}"
-        + &PUNCTUATIONS.join("") + r"]+");
+        + &PUNCTUATIONS.join("")
+        + r"]+";
     regex::Regex::new(&pattern).unwrap()
 });
 

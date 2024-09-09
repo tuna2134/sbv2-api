@@ -117,7 +117,10 @@ impl JTalkProcess {
             let word = replace_punctuation(string);
             assert!(yomi != "", "Empty yomi: {}", word);
             if yomi == "、" {
-                if !word.chars().all(|x| PUNCTUATIONS.contains(&x.to_string().as_str())) {
+                if !word
+                    .chars()
+                    .all(|x| PUNCTUATIONS.contains(&x.to_string().as_str()))
+                {
                     yomi = "'".repeat(word.len());
                 } else {
                     yomi = word.clone();
