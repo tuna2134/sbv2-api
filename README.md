@@ -17,3 +17,7 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - [ ] WebAPIの実装
 - [ ] Rustライブラリの実装
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
+
+## 謝辞
+- [litagin02](https://github.com/litagin02/Style-Bert-VITS2) - このコードのベースとなる部分を参考にさせていただきました。
+- [Googlefan](https://github.com/Googlefan256) - 彼にモデルをONNXヘ変換および効率化をする方法を教わりました。
