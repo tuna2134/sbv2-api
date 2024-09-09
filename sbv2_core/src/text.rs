@@ -123,7 +123,7 @@ impl JTalkProcess {
         let phone_w_punct: Vec<String> = sep_phonemes
             .iter()
             .flat_map(|x| x.iter())
-            .map(|x| x.clone())
+            .cloned()
             .collect();
         // println!("{:?}", phone_w_punct);
 
