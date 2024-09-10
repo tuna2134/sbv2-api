@@ -32,7 +32,7 @@ async fn synthesize(
                 "models/model_opt.onnx",
                 "models/style_vectors.json",
             )?);
-            &*tts_model.as_ref().unwrap()
+            tts_model.as_ref().unwrap()
         };
         let (bert_ori, phones, tones, lang_ids) = tts_model.parse_text(&text)?;
         let style_vector = tts_model.get_style_vector(0, 1.0)?;
