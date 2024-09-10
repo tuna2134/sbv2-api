@@ -143,21 +143,21 @@ impl JTalkProcess {
         for (token, phoneme) in sep_tokenized.iter().zip(sep_phonemes.iter()) {
             let phone_len = phoneme.len() as i32;
             let word_len = token.len() as i32;
-            word2ph.extend(JTalkProcess::distribute_phone(phone_len, word_len));
+            word2ph.append(&mut JTalkProcess::distribute_phone(phone_len, word_len));
         }
 
         let mut new_phone_tone_list = vec![("_".to_string(), 0)];
         new_phone_tone_list.append(&mut phone_tone_list);
         new_phone_tone_list.push(("_".to_string(), 0));
 
-        let mut word2ph = vec![1];
-        word2ph.append(&mut word2ph.clone());
-        word2ph.push(1);
+        let mut new_word2ph = vec![1];
+        new_word2ph.extend(word2ph.clone());
+        new_word2ph.push(1);
 
         let phones: Vec<String> = new_phone_tone_list.iter().map(|(x, _)| x.clone()).collect();
         let tones: Vec<i32> = new_phone_tone_list.iter().map(|(_, x)| *x).collect();
 
-        Ok((phones, tones, word2ph))
+        Ok((phones, tones, new_word2ph))
     }
 
     fn distribute_phone(n_phone: i32, n_word: i32) -> Vec<i32> {

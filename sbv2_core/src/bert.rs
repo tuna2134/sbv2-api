@@ -10,7 +10,11 @@ pub fn load_model() -> Result<Session> {
     Ok(session)
 }
 
-pub fn predict(session: &Session, token_ids: Vec<i64>, attention_masks: Vec<i64>) -> Result<()> {
+pub fn predict(
+    session: &Session,
+    token_ids: Vec<i64>,
+    attention_masks: Vec<i64>,
+) -> Result<Array2<f32>> {
     let outputs = session.run(
         ort::inputs! {
             "input_ids" => Array2::from_shape_vec((1, token_ids.len()), token_ids).unwrap(),
@@ -20,7 +24,12 @@ pub fn predict(session: &Session, token_ids: Vec<i64>, attention_masks: Vec<i64>
 
     let output = outputs.get("output").unwrap();
 
-    println!("{:?}", output);
+    let content = output.try_extract_tensor::<f32>()?.to_owned();
+    println!("{:?}", content);
 
-    Ok(())
+    Ok(Array2::from_shape_vec(
+        (content.shape()[0], content.shape()[1]),
+        content.into_raw_vec(),
+    )
+    .unwrap())
 }
