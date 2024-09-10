@@ -1,7 +1,8 @@
 use crate::error::Result;
 use hound::{SampleFormat, WavSpec, WavWriter};
-use ndarray::{array, Array1, Array2, Axis};
+use ndarray::{array, s, Array1, Array2, Axis};
 use ort::{GraphOptimizationLevel, Session};
+use std::io::Cursor;
 
 pub fn load_model(model_file: &str) -> Result<Session> {
     let session = Session::builder()?
@@ -11,24 +12,6 @@ pub fn load_model(model_file: &str) -> Result<Session> {
     Ok(session)
 }
 
-fn write_wav(file_path: &str, audio: &[f32], sample_rate: u32) -> Result<()> {
-    let spec = WavSpec {
-        channels: 1, // モノラルの場合。ステレオなどの場合は2に変更
-        sample_rate,
-        bits_per_sample: 16,
-        sample_format: SampleFormat::Int,
-    };
-
-    let mut writer = WavWriter::create(file_path, spec)?;
-    for &sample in audio {
-        let int_sample = (sample * i16::MAX as f32).clamp(i16::MIN as f32, i16::MAX as f32) as i16;
-        writer.write_sample(int_sample)?;
-    }
-    writer.finalize()?;
-
-    Ok(())
-}
-
 pub fn synthesize(
     session: &Session,
     bert_ori: Array2<f32>,
@@ -36,7 +19,7 @@ pub fn synthesize(
     tones: Array1<i64>,
     lang_ids: Array1<i64>,
     style_vector: Array1<f32>,
-) -> Result<()> {
+) -> Result<Vec<u8>> {
     let bert = bert_ori.insert_axis(Axis(0));
     let x_tst_lengths: Array1<i64> = array![x_tst.shape()[0] as i64];
     let x_tst = x_tst.insert_axis(Axis(0));
@@ -53,7 +36,30 @@ pub fn synthesize(
         "ja_bert" => style_vector,
     }?)?;
 
-    let audio_array = outputs.get("output").unwrap().try_extract_tensor::<f32>()?;
-    write_wav("output.wav", audio_array.as_slice().unwrap(), 44100)?;
-    Ok(())
+    let audio_array = outputs
+        .get("output")
+        .unwrap()
+        .try_extract_tensor::<f32>()?
+        .to_owned();
+
+    let buffer = {
+        let spec = WavSpec {
+            channels: 1,
+            sample_rate: 44100,
+            bits_per_sample: 32,
+            sample_format: SampleFormat::Float,
+        };
+        let mut cursor = Cursor::new(Vec::new());
+        let mut writer = WavWriter::new(&mut cursor, spec)?;
+        for i in 0..audio_array.shape()[0] {
+            let output = audio_array.slice(s![i, 0, ..]).to_vec();
+            for sample in output {
+                writer.write_sample(sample)?;
+            }
+        }
+        writer.finalize()?;
+        cursor.into_inner()
+    };
+
+    Ok(buffer)
 }

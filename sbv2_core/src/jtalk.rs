@@ -223,27 +223,6 @@ impl JTalkProcess {
     }
 
     fn kata_to_phoneme_list(mut text: String) -> Result<Vec<String>> {
-        /*
-        if set(text).issubset(set(PUNCTUATIONS)):
-            return list(text)
-        # `text` がカタカナ（`ー`含む）のみからなるかどうかをチェック
-        if __KATAKANA_PATTERN.fullmatch(text) is None:
-            raise ValueError(f"Input must be katakana only: {text}")
-
-        def mora2phonemes(mora: str) -> str:
-            consonant, vowel = MORA_KATA_TO_MORA_PHONEMES[mora]
-            if consonant is None:
-                return f" {vowel}"
-            return f" {consonant} {vowel}"
-
-        spaced_phonemes = __MORA_PATTERN.sub(lambda m: mora2phonemes(m.group()), text)
-
-        # 長音記号「ー」の処理
-        long_replacement = lambda m: m.group(1) + (" " + m.group(1)) * len(m.group(2))  # type: ignore
-        spaced_phonemes = __LONG_PATTERN.sub(long_replacement, spaced_phonemes)
-
-        return spaced_phonemes.strip().split(" ")
-        */
         if PUNCTUATIONS.contains(&text.as_str()) {
             return Ok(text.chars().map(|x| x.to_string()).collect());
         }

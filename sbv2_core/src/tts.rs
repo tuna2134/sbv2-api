@@ -107,8 +107,8 @@ impl TTSModel {
         tones: Array1<i64>,
         lang_ids: Array1<i64>,
         style_vector: Array1<f32>,
-    ) -> Result<()> {
-        model::synthesize(
+    ) -> Result<Vec<u8>> {
+        let buffer = model::synthesize(
             &self.vits2,
             bert_ori.to_owned(),
             phones,
@@ -116,6 +116,6 @@ impl TTSModel {
             lang_ids,
             style_vector,
         )?;
-        Ok(())
+        Ok(buffer)
     }
 }
