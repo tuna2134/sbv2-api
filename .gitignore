@@ -3,3 +3,4 @@ models/*.onnx
 models/*.json
 venv
 .env
+output.wav

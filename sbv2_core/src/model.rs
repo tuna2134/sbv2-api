@@ -36,7 +36,7 @@ pub fn synthesize(
         "tones" => tones,
         "language" => lang_ids,
         "bert" => bert,
-        "ja_bert" => style_vector,
+        "style_vector" => style_vector,
     }?)?;
 
     let audio_array = outputs
