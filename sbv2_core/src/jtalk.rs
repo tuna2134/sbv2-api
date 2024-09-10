@@ -407,14 +407,6 @@ impl JTalkProcess {
     }
 }
 
-pub fn normalize_text(text: &str) -> String {
-    // 日本語のテキストを正規化する
-    let text = text.replace('~', "ー");
-    let text = text.replace('～', "ー");
-
-    text.replace('〜', "ー")
-}
-
 pub fn get_tokenizer() -> Result<Tokenizer> {
     let tokenizer = Tokenizer::from_file("tokenizer.json")?;
     Ok(tokenizer)
