@@ -5,12 +5,10 @@ fn main() -> error::Result<()> {
     let text = "隣の客はよくかき食う客だ";
 
     let normalized_text = norm::normalize_text(text);
-    println!("{}", normalized_text);
 
     let jtalk = jtalk::JTalk::new()?;
     let (phones, tones, mut word2ph) = jtalk.g2p(&normalized_text)?;
     let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
-    println!("{:?}", phones);
 
     // add black
     let phones = utils::intersperse(&phones, 0);

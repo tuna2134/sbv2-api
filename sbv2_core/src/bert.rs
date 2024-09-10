@@ -25,11 +25,7 @@ pub fn predict(
     let output = outputs.get("output").unwrap();
 
     let content = output.try_extract_tensor::<f32>()?.to_owned();
-    println!("{:?}", content);
+    let (data, _) = content.clone().into_raw_vec_and_offset();
 
-    Ok(Array2::from_shape_vec(
-        (content.shape()[0], content.shape()[1]),
-        content.into_raw_vec(),
-    )
-    .unwrap())
+    Ok(Array2::from_shape_vec((content.shape()[0], content.shape()[1]), data).unwrap())
 }
