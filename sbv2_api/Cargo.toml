@@ -1,0 +1,11 @@
+[package]
+name = "sbv2_api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+axum = "0.7.5"
+sbv2_core = { version = "0.1.0", path = "../sbv2_core" }
+serde = { version = "1.0.210", features = ["derive"] }
+tokio = { version = "1.40.0", features = ["full"] }
