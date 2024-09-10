@@ -12,6 +12,10 @@ pub enum Error {
     NdArrayError(#[from] ndarray::ShapeError),
     #[error("Value error: {0}")]
     ValueError(String),
+    #[error("Serde_json error: {0}")]
+    SerdeJsonError(#[from] serde_json::Error),
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

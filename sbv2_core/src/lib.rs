@@ -1,9 +1,11 @@
 pub mod bert;
 pub mod error;
 pub mod jtalk;
+pub mod model;
 pub mod mora;
 pub mod nlp;
 pub mod norm;
+pub mod style;
 pub mod utils;
 
 pub fn add(left: usize, right: usize) -> usize {
