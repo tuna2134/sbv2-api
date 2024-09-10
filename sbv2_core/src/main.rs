@@ -2,7 +2,7 @@ use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
 use sbv2_core::{bert, error, jtalk, model, nlp, norm, style, utils};
 
 fn main() -> error::Result<()> {
-    let text = "こんにちは,世界!";
+    let text = "隣の客はよくかき食う客だ";
 
     let normalized_text = norm::normalize_text(text);
     println!("{}", normalized_text);
