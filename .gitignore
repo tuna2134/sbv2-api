@@ -2,3 +2,4 @@ target
 models/*.onnx
 models/*.json
 venv
+.env

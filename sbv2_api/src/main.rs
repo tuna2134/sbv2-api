@@ -7,6 +7,7 @@ use axum::{
 };
 use sbv2_core::tts::TTSModel;
 use serde::Deserialize;
+use std::env;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -28,9 +29,9 @@ async fn synthesize(
             tts_model
         } else {
             *tts_model = Some(TTSModel::new(
-                "models/debert.onnx",
-                "models/model_opt.onnx",
-                "models/style_vectors.json",
+                env::var("BERT_MODEL_PATH")?,
+                env::var("MAIN_MODEL_PATH")?,
+                env::var("STYLE_VECTORS_PATH")?,
             )?);
             tts_model.as_ref().unwrap()
         };
@@ -47,6 +48,7 @@ struct AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv().ok();
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/synthesize", post(synthesize))
