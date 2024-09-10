@@ -15,7 +15,7 @@ fn main() -> error::Result<()> {
     let tones = utils::intersperse(&tones, 0);
     let lang_ids = utils::intersperse(&lang_ids, 0);
     for i in 0..word2ph.len() {
-        word2ph[i] = word2ph[i] * 2;
+        word2ph[i] *= 2;
     }
     word2ph[0] += 1;
 
