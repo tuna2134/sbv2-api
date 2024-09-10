@@ -3,6 +3,8 @@
 
 学習したいのであれば、Style-Bert-ViT2で調べてやってください。
 
+注意：JP-Extraしか対応していません。
+
 ## ONNX化する方法
 dabertaとstbv2本体をonnx化する必要があります。
 
