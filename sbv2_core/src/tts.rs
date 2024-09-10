@@ -93,11 +93,11 @@ impl TTSModel {
     }
 
     pub fn get_style_vector(&self, style_id: i32, weight: f32) -> Result<Array1<f32>> {
-        Ok(style::get_style_vector(
+        style::get_style_vector(
             self.style_vectors.clone(),
             style_id,
             weight,
-        )?)
+        )
     }
 
     pub fn synthesize(
