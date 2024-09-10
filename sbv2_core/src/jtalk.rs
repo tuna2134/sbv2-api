@@ -177,7 +177,7 @@ impl JTalkProcess {
     ) -> Result<Vec<(String, i32)>> {
         let mut result: Vec<(String, i32)> = Vec::new();
         let mut tone_index = 0;
-        for phone in phone_with_punct {
+        for phone in phone_with_punct.clone() {
             if tone_index >= phone_tone_list.len() {
                 result.push((phone, 0));
             } else if phone == phone_tone_list[tone_index].0 {
@@ -186,6 +186,11 @@ impl JTalkProcess {
             } else if PUNCTUATIONS.contains(&phone.as_str()) {
                 result.push((phone, 0));
             } else {
+                println!("phones {:?}", phone_with_punct);
+                println!("phone_tone_list: {:?}", phone_tone_list);
+                println!("result: {:?}", result);
+                println!("tone_index: {:?}", tone_index);
+                println!("phone: {:?}", phone);
                 return Err(Error::ValueError(format!("Mismatched phoneme: {}", phone)));
             }
         }
@@ -233,32 +238,34 @@ impl JTalkProcess {
             )));
         }
 
-        fn mora2phonemes(mora: &str) -> String {
-            let (consonant, vowel) = MORA_KATA_TO_MORA_PHONEMES.get(mora).unwrap();
-            if consonant.is_none() {
-                return format!(" {}", vowel);
-            }
-            format!(" {} {}", consonant.as_ref().unwrap(), vowel)
-        }
-
         for mora in MORA_PATTERN.iter() {
             let mora = mora.to_string();
-            let phonemes = mora2phonemes(&mora);
-            text = text.replace(&mora, &phonemes);
+            let (consonant, vowel) = MORA_KATA_TO_MORA_PHONEMES.get(&mora).unwrap();
+            if consonant.is_none() {
+                text = text.replace(&mora, &format!(" {}", vowel));
+            } else {
+                text = text.replace(
+                    &mora,
+                    &format!(" {} {}", consonant.as_ref().unwrap(), vowel),
+                );
+            }
         }
 
         let long_replacement = |m: &regex::Captures| {
-            let mut result = m.get(1).unwrap().as_str().to_string();
-            for _ in 0..m.get(2).unwrap().as_str().len() {
-                result += &format!(" {}", m.get(1).unwrap().as_str());
+            let result = m.get(1).unwrap().as_str().to_string();
+            let mut second = String::new();
+            for _ in 0..m.get(2).unwrap().as_str().char_indices().count() {
+                second += &format!(" {}", m.get(1).unwrap().as_str());
             }
-            result
+            result + &second
         };
         text = LONG_PATTERN
             .replace_all(&text, long_replacement)
             .to_string();
 
-        return Ok(text.trim().split(' ').map(|x| x.to_string()).collect());
+        let data = text.trim().split(' ').map(|x| x.to_string()).collect();
+
+        return Ok(data);
     }
 
     fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
