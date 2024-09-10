@@ -16,6 +16,8 @@ pub enum Error {
     SerdeJsonError(#[from] serde_json::Error),
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
+    #[error("hound error: {0}")]
+    HoundError(#[from] hound::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

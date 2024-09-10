@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
+hound = "3.5.1"
 jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
 ndarray = "0.16.1"
 once_cell = "1.19.0"

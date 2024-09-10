@@ -1,6 +1,25 @@
 use crate::error::Result;
+use hound::{SampleFormat, WavSpec, WavWriter};
 use ndarray::{array, Array1, Array2, Axis};
 use ort::Session;
+
+fn write_wav(file_path: &str, audio: &[f32], sample_rate: u32) -> Result<()> {
+    let spec = WavSpec {
+        channels: 1, // モノラルの場合。ステレオなどの場合は2に変更
+        sample_rate,
+        bits_per_sample: 16,
+        sample_format: SampleFormat::Int,
+    };
+
+    let mut writer = WavWriter::create(file_path, spec)?;
+    for &sample in audio {
+        let int_sample = (sample * i16::MAX as f32).clamp(i16::MIN as f32, i16::MAX as f32) as i16;
+        writer.write_sample(int_sample)?;
+    }
+    writer.finalize()?;
+
+    Ok(())
+}
 
 pub fn synthesize(
     session: &Session,
@@ -25,5 +44,8 @@ pub fn synthesize(
         "bert" => bert,
         "ja_bert" => style_vector,
     }?)?;
+
+    let audio_array = outputs.get("output").unwrap().try_extract_tensor::<f32>()?;
+    write_wav("output.wav", audio_array.as_slice().unwrap(), 44100)?;
     Ok(())
 }

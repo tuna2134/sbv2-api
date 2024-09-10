@@ -1,4 +1,3 @@
-
 pub fn intersperse<T>(slice: &[T], sep: T) -> Vec<T>
 where
     T: Clone,
