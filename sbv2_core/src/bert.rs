@@ -1,14 +1,6 @@
 use crate::error::Result;
 use ndarray::Array2;
-use ort::{GraphOptimizationLevel, Session};
-
-pub fn load_model(model_file: &str) -> Result<Session> {
-    let session = Session::builder()?
-        .with_optimization_level(GraphOptimizationLevel::Level3)?
-        .with_intra_threads(1)?
-        .commit_from_file(model_file)?;
-    Ok(session)
-}
+use ort::Session;
 
 pub fn predict(
     session: &Session,

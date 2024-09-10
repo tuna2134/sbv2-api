@@ -1,7 +1,15 @@
 use crate::error::Result;
 use hound::{SampleFormat, WavSpec, WavWriter};
 use ndarray::{array, Array1, Array2, Axis};
-use ort::Session;
+use ort::{GraphOptimizationLevel, Session};
+
+pub fn load_model(model_file: &str) -> Result<Session> {
+    let session = Session::builder()?
+        .with_optimization_level(GraphOptimizationLevel::Level3)?
+        .with_intra_threads(1)?
+        .commit_from_file(model_file)?;
+    Ok(session)
+}
 
 fn write_wav(file_path: &str, audio: &[f32], sample_rate: u32) -> Result<()> {
     let spec = WavSpec {

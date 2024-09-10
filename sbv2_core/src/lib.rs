@@ -6,6 +6,7 @@ pub mod mora;
 pub mod nlp;
 pub mod norm;
 pub mod style;
+pub mod tts;
 pub mod utils;
 
 pub fn add(left: usize, right: usize) -> usize {
