@@ -16,8 +16,8 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - `models/sbv2.onnx` - `Style-Bert-ViT2`の本体
 
 ## Todo
-- [ ] WebAPIの実装
-- [ ] Rustライブラリの実装
+- [x] WebAPIの実装
+- [x] Rustライブラリの実装
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
 
 ## 謝辞
