@@ -128,7 +128,6 @@ impl JTalkProcess {
 
         let mut phone_tone_list =
             JTalkProcess::align_tones(phone_w_punct, phone_tone_list_wo_punct)?;
-        println!("{:?}", phone_tone_list);
 
         let mut sep_tokenized: Vec<Vec<String>> = Vec::new();
         for i in 0..seq_text.len() {

@@ -1,8 +1,9 @@
 pub mod bert;
 pub mod error;
+pub mod jtalk;
 pub mod mora;
+pub mod nlp;
 pub mod norm;
-pub mod text;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

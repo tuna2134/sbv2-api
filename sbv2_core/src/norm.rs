@@ -69,7 +69,26 @@ __PUNCTUATION_CLEANUP_PATTERN = re.compile(
 )
 */
 
+pub const JP_SYMBOLS: [&str; 42] = [
+    "N", "a", "a:", "b", "by", "ch", "d", "dy", "e", "e:", "f", "g", "gy", "h", "hy", "i", "i:",
+    "j", "k", "ky", "m", "my", "n", "ny", "o", "o:", "p", "py", "q", "r", "ry", "s", "sh", "t",
+    "ts", "ty", "u", "u:", "w", "y", "z", "zy",
+];
+
 pub static PUNCTUATIONS: [&str; 7] = ["!", "?", "…", ",", ".", "'", "-"];
+pub static PUNCTUATION_SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
+    let mut symbols = PUNCTUATIONS.to_vec();
+    symbols.append(&mut vec!["SP", "UNK"]);
+    symbols
+});
+const PAD: &str = "_";
+pub static SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
+    let mut symbols = JP_SYMBOLS.to_vec();
+    symbols.append(&mut JP_SYMBOLS.to_vec());
+    symbols.append(&mut PUNCTUATION_SYMBOLS.to_vec());
+    symbols
+});
+
 static PUNCTUATION_CLEANUP_PATTERN: Lazy<regex::Regex> = Lazy::new(|| {
     let pattern = r"[^\u{3040}-\u{309F}\u{30A0}-\u{30FF}\u{4E00}-\u{9FFF}\u{3400}-\u{4DBF}\u{3005}"
         .to_owned()
