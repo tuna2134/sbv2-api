@@ -100,6 +100,16 @@ static PUNCTUATION_CLEANUP_PATTERN: Lazy<regex::Regex> = Lazy::new(|| {
     regex::Regex::new(&pattern).unwrap()
 });
 
+pub fn normalize_text(text: &str) -> String {
+    // 日本語のテキストを正規化する
+    let text = text.replace('~', "ー");
+    let text = text.replace('～', "ー");
+
+    let text = text.replace('〜', "ー");
+
+    replace_punctuation(text)
+}
+
 pub fn replace_punctuation(mut text: String) -> String {
     for (k, v) in REPLACE_MAP.iter() {
         text = text.replace(k, v);
