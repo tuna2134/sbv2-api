@@ -1,4 +1,6 @@
+# moraに変換します
 import json
+
 
 __MORA_LIST_MINIMUM: list[tuple[str, str | None, str]] = [
     ("ヴォ", "v", "o"),
