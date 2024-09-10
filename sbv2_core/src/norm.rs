@@ -69,6 +69,13 @@ __PUNCTUATION_CLEANUP_PATTERN = re.compile(
 )
 */
 
+pub const ZH_SYMBOLS: [&str; 65] = [
+    "E", "En", "a", "ai", "an", "ang", "ao", "b", "c", "ch", "d", "e", "ei", "en", "eng", "er",
+    "f", "g", "h", "i", "i0", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "ir", "iu",
+    "j", "k", "l", "m", "n", "o", "ong", "ou", "p", "q", "r", "s", "sh", "t", "u", "ua", "uai",
+    "uan", "uang", "ui", "un", "uo", "v", "van", "ve", "vn", "w", "x", "y", "z", "zh", "AA", "EE",
+    "OO",
+];
 pub const JP_SYMBOLS: [&str; 42] = [
     "N", "a", "a:", "b", "by", "ch", "d", "dy", "e", "e:", "f", "g", "gy", "h", "hy", "i", "i:",
     "j", "k", "ky", "m", "my", "n", "ny", "o", "o:", "p", "py", "q", "r", "ry", "s", "sh", "t",
@@ -83,7 +90,7 @@ pub static PUNCTUATION_SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
 });
 const PAD: &str = "_";
 pub static SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
-    let mut symbols = JP_SYMBOLS.to_vec();
+    let mut symbols = vec![PAD];
     symbols.append(&mut JP_SYMBOLS.to_vec());
     symbols.append(&mut PUNCTUATION_SYMBOLS.to_vec());
     symbols

@@ -1,14 +1,14 @@
-use sbv2_core::{bert, error, jtalk};
+use sbv2_core::{bert, error, jtalk, nlp, norm};
 
 fn main() -> error::Result<()> {
     let text = "こんにちは,世界!";
 
-    let normalized_text = jtalk::normalize_text(text);
+    let normalized_text = norm::normalize_text(text);
     println!("{}", normalized_text);
 
     let jtalk = jtalk::JTalk::new()?;
-    let (phones, tones, _) = jtalk.g2p(&normalized_text)?;
-    println!("{:?}", tones);
+    let (phones, tones, word2ph) = jtalk.g2p(&normalized_text)?;
+    let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
 
     let tokenizer = jtalk::get_tokenizer()?;
     println!("{:?}", tokenizer);
