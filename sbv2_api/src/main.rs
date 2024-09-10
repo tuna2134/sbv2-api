@@ -29,9 +29,9 @@ async fn synthesize(
             tts_model
         } else {
             *tts_model = Some(TTSModel::new(
-                env::var("BERT_MODEL_PATH")?,
-                env::var("MAIN_MODEL_PATH")?,
-                env::var("STYLE_VECTORS_PATH")?,
+                &env::var("BERT_MODEL_PATH")?,
+                &env::var("MAIN_MODEL_PATH")?,
+                &env::var("STYLE_VECTORS_PATH")?,
             )?);
             tts_model.as_ref().unwrap()
         };
