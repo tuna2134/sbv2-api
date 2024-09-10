@@ -19,6 +19,7 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - [x] WebAPIの実装
 - [x] Rustライブラリの実装
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
+- [ ] GPU対応(優先的にCUDA)
 
 ## 謝辞
 - [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
