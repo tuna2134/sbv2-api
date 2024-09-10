@@ -8,6 +8,9 @@ pub fn load_model(model_file: &str) -> Result<Session> {
     let session = Session::builder()?
         .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(1)?
+        .with_intra_threads(num_cpus::get_physical())?
+        .with_parallel_execution(true)?
+        .with_inter_threads(num_cpus::get_physical())?
         .commit_from_file(model_file)?;
     Ok(session)
 }
