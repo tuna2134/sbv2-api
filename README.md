@@ -21,6 +21,19 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
 - [ ] GPU対応(優先的にCUDA)
 
+## ディレクトリー説明
+- `sbv2_api` - Style-Bert-VITS2の推論Web API
+- `sbv2_core` - Style-Bert-VITS2の推論コア部分
+
+## APIの起動方法
+```rs
+cargo run -p sbv2_api -r
+```
+
+### テストコマンド
+```bash
+curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは"}' 'http://localhost:3000/synthesize'
+
 ## 謝辞
 - [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
 - [Googlefan](https://github.com/Googlefan256) - 彼にモデルをONNXヘ変換および効率化をする方法を教わりました。
