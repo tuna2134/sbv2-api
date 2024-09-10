@@ -19,7 +19,7 @@ pub fn synthesize(
     let outputs = session.run(ort::inputs! {
         "x_tst" => x_tst,
         "x_tst_lengths" => x_tst_lengths,
-        "sid" => array![0 as i64],
+        "sid" => array![0_i64],
         "tones" => tones,
         "language" => lang_ids,
         "bert" => bert,

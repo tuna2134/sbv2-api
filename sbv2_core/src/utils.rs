@@ -1,4 +1,3 @@
-use ndarray::{s, Array, Array2};
 
 pub fn intersperse<T>(slice: &[T], sep: T) -> Vec<T>
 where
