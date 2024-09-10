@@ -265,7 +265,7 @@ impl JTalkProcess {
 
         let data = text.trim().split(' ').map(|x| x.to_string()).collect();
 
-        return Ok(data);
+        Ok(data)
     }
 
     fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
