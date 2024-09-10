@@ -10,6 +10,7 @@ fn main() -> error::Result<()> {
     let jtalk = jtalk::JTalk::new()?;
     let (phones, tones, mut word2ph) = jtalk.g2p(&normalized_text)?;
     let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
+    println!("{:?}", phones);
 
     // add black
     let phones = utils::intersperse(&phones, 0);
@@ -62,9 +63,6 @@ fn main() -> error::Result<()> {
             .collect::<Vec<_>>(),
     )?;
     let bert_ori = phone_level_feature.t();
-    println!("{:?}", bert_ori.shape());
-    // let data: Array2<f32> = Array2::from_shape_vec((bert_ori.shape()[0], bert_ori.shape()[1]), bert_ori.to_vec()).unwrap();
-    // data
 
     let session = bert::load_model("models/model_opt.onnx")?;
     let style_vectors = style::load_style("models/style_vectors.json")?;

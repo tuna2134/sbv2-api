@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 static REPLACE_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     let mut map = HashMap::new();
@@ -54,25 +54,22 @@ static REPLACE_MAP: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     map
 });
 
-/*
-__PUNCTUATION_CLEANUP_PATTERN = re.compile(
-    # ↓ ひらがな、カタカナ、漢字
-    r"[^\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\u3400-\u4DBF\u3005"
-    # ↓ 半角アルファベット（大文字と小文字）
-    + r"\u0041-\u005A\u0061-\u007A"
-    # ↓ 全角アルファベット（大文字と小文字）
-    + r"\uFF21-\uFF3A\uFF41-\uFF5A"
-    # ↓ ギリシャ文字
-    + r"\u0370-\u03FF\u1F00-\u1FFF"
-    # ↓ "!", "?", "…", ",", ".", "'", "-", 但し`…`はすでに`...`に変換されている
-    + "".join(PUNCTUATIONS) + r"]+",  # fmt: skip
-)
-*/
-
+const ZH_SYMBOLS: [&str; 65] = [
+    "E", "En", "a", "ai", "an", "ang", "ao", "b", "c", "ch", "d", "e", "ei", "en", "eng", "er",
+    "f", "g", "h", "i", "i0", "ia", "ian", "iang", "iao", "ie", "in", "ing", "iong", "ir", "iu",
+    "j", "k", "l", "m", "n", "o", "ong", "ou", "p", "q", "r", "s", "sh", "t", "u", "ua", "uai",
+    "uan", "uang", "ui", "un", "uo", "v", "van", "ve", "vn", "w", "x", "y", "z", "zh", "AA", "EE",
+    "OO",
+];
 pub const JP_SYMBOLS: [&str; 42] = [
     "N", "a", "a:", "b", "by", "ch", "d", "dy", "e", "e:", "f", "g", "gy", "h", "hy", "i", "i:",
     "j", "k", "ky", "m", "my", "n", "ny", "o", "o:", "p", "py", "q", "r", "ry", "s", "sh", "t",
     "ts", "ty", "u", "u:", "w", "y", "z", "zy",
+];
+pub const EN_SYMBOLS: [&str; 39] = [
+    "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f", "g", "hh",
+    "ih", "iy", "jh", "k", "l", "m", "n", "ng", "ow", "oy", "p", "r", "s", "sh", "t", "th", "uh",
+    "uw", "V", "w", "y", "z", "zh",
 ];
 
 pub static PUNCTUATIONS: [&str; 7] = ["!", "?", "…", ",", ".", "'", "-"];
@@ -82,9 +79,18 @@ pub static PUNCTUATION_SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
     symbols
 });
 const PAD: &str = "_";
+pub static NORMAL_SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
+    let mut symbols: Vec<&str> = ZH_SYMBOLS.to_vec();
+    symbols.append(&mut JP_SYMBOLS.to_vec());
+    symbols.append(&mut EN_SYMBOLS.to_vec());
+    let symbols: HashSet<&str> = symbols.drain(..).collect();
+    let mut symbols: Vec<&str> = symbols.into_iter().collect();
+    symbols.sort();
+    symbols
+});
 pub static SYMBOLS: Lazy<Vec<&str>> = Lazy::new(|| {
     let mut symbols = vec![PAD];
-    symbols.append(&mut JP_SYMBOLS.to_vec());
+    symbols.append(&mut NORMAL_SYMBOLS.clone());
     symbols.append(&mut PUNCTUATION_SYMBOLS.to_vec());
     symbols
 });

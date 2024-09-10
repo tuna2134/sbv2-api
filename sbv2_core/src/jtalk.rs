@@ -118,13 +118,11 @@ impl JTalkProcess {
                 .map(|x| JTalkProcess::kata_to_phoneme_list(x.clone()).unwrap())
                 .collect(),
         );
-        // println!("{:?}", sep_phonemes);
         let phone_w_punct: Vec<String> = sep_phonemes
             .iter()
             .flat_map(|x| x.iter())
             .cloned()
             .collect();
-        // println!("{:?}", phone_w_punct);
 
         let mut phone_tone_list =
             JTalkProcess::align_tones(phone_w_punct, phone_tone_list_wo_punct)?;
