@@ -1,11 +1,13 @@
 # sbv2-api
-このプロジェクトはStyle-Bert-ViTS2をONNX化したものをRustで実行するのを目的としています。
+
+このプロジェクトは Style-Bert-ViTS2 を ONNX 化したものを Rust で実行するのを目的としています。
 
 学習したい場合は、Style-Bert-ViTS2 学習方法 などで調べるとよいかもしれません。
 
-JP-Extraしか対応していません。(基本的に対応する予定もありません)
+JP-Extra しか対応していません。(基本的に対応する予定もありません)
 
-## ONNX化する方法
+## ONNX 化する方法
+
 ```sh
 cd convert
 # (何かしらの方法でvenv作成(推奨))
@@ -15,38 +17,56 @@ python convert_model.py --style_file ../../style-bert-vits2/model_assets/somethi
 ```
 
 ## Todo
-- [x] WebAPIの実装
-- [x] Rustライブラリの実装
-- [ ] 余裕があればPyO3使ってPythonで利用可能にする
-- [x] GPU対応(優先的にCUDA)
-- [ ] WASM変換(ortがサポートやめたので、中止)
+
+- [x] WebAPI の実装
+- [x] Rust ライブラリの実装
+- [ ] 余裕があれば PyO3 使って Python で利用可能にする
+- [x] GPU 対応(優先的に CUDA)
+- [ ] WASM 変換(ort がサポートやめたので、中止)
 
 ## 構造説明
+
 - `sbv2_api` - 推論用 REST API
 - `sbv2_core` - 推論コア部分
-- `docker` - dockerビルドスクリプト
+- `docker` - docker ビルドスクリプト
 
-## APIの起動方法
+## API の起動方法
+
 ```sh
 cargo run -p sbv2_api -r
 ```
 
-### CUDAでの起動
+### CUDA での起動
+
 ```sh
 cargo run -p sbv2_api -r -F cuda,cuda_tf32
 ```
 
-### Dynamic Linkサポート
+### Dynamic Link サポート
+
 ```sh
 ORT_DYLIB_PATH=./libonnxruntime.dll cargo run -p sbv2_api -r -F dynamic
 ```
 
-### テストコマンド
+### models をインストール
+
+https://huggingface.co/googlefan/sbv2_onnx_models/tree/main
+の中身を models フォルダに配置
+
+### .env ファイルの作成
+
 ```sh
-curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは","ident": "something"}' 'http://localhost:3000/synthesize'
+cp .env.sample .env
+```
+
+### テストコマンド
+
+```sh
+curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは","ident": "tsukuyomi"}' 'http://localhost:3000/synthesize' --output "output.wav"
 curl http://localhost:3000/models
 ```
 
 ## 謝辞
+
 - [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
-- [Googlefan](https://github.com/Googlefan256) - 彼にモデルをONNXヘ変換および効率化をする方法を教わりました。
+- [Googlefan](https://github.com/Googlefan256) - 彼にモデルを ONNX ヘ変換および効率化をする方法を教わりました。
