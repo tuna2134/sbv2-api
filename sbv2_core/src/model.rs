@@ -17,6 +17,10 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
         }
         exp.push(cuda.build());
     }
+    #[cfg(feature = "directml")]
+    {
+        exp.push(ort::DirectMLExecutionProvider::default().build());
+    }
     exp.push(ort::CPUExecutionProvider::default().build());
     Ok(Session::builder()?
         .with_execution_providers(exp)?
@@ -26,6 +30,7 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
         .with_inter_threads(num_cpus::get_physical())?
         .commit_from_memory(model_file.as_ref())?)
 }
+
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize(
     session: &Session,
