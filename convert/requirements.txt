@@ -1,4 +1,4 @@
 style-bert-vits2
 onnxsim
-numpy<2
+numpy<3
 zstandard
