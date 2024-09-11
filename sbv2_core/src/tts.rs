@@ -55,6 +55,7 @@ impl TTSModelHolder {
     pub fn models(&self) -> Vec<String> {
         self.models.iter().map(|m| m.ident.to_string()).collect()
     }
+    
     pub fn load_sbv2file<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -83,6 +84,7 @@ impl TTSModelHolder {
         self.load(ident, style_vectors.unwrap(), vits2.unwrap())?;
         Ok(())
     }
+
     pub fn load<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
