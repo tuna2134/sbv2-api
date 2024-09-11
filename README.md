@@ -27,8 +27,13 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - `sbv2_core` - Style-Bert-VITS2の推論コア部分
 
 ## APIの起動方法
-```rs
+```bash
 cargo run -p sbv2_api -r
+```
+
+### CUDAでの起動
+```bash
+cargo run -p sbv2_api -r -F cuda,cuda_tf32
 ```
 
 ### テストコマンド
