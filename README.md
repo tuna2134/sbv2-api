@@ -51,7 +51,7 @@ ORT_DYLIB_PATH=./libonnxruntime.dll cargo run -p sbv2_api -r -F dynamic
 ### models をインストール
 
 https://huggingface.co/googlefan/sbv2_onnx_models/tree/main
-を models フォルダとして配置
+の中身を models フォルダに配置
 
 ### .env ファイルの作成
 

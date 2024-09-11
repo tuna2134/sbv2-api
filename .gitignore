@@ -1,8 +1,7 @@
 target
-models/*.onnx
-models/*.json
+models/
+!models/.gitkeep
 venv/
 .env
 output.wav
 node_modules
-models/
