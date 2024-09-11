@@ -1,10 +1,6 @@
 [workspace]
 resolver = "2"
-<<<<<<< HEAD
-members = [ "sbv2_api","sbv2_core", "sbv2_bindings"]
-=======
-members = ["sbv2_api", "sbv2_core"]
->>>>>>> cfea5d735aeb7d0abad5b913a3dda3810d8e59f8
+members = ["sbv2_api", "sbv2_core", "sbv2_bindings"]
 
 [workspace.dependencies]
 anyhow = "1.0.86"
