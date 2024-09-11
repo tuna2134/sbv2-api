@@ -20,3 +20,4 @@ tokenizers = "0.20.0"
 [features]
 cuda = ["ort/cuda"]
 cuda_tf32 = []
+dynamic = ["ort/load-dynamic"]

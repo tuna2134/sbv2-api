@@ -36,6 +36,11 @@ cargo run -p sbv2_api -r
 cargo run -p sbv2_api -r -F cuda,cuda_tf32
 ```
 
+### Dynamicのサポート
+```bash
+ORT_DYLIB_PATH=./libonnxruntime.dll cargo run -p sbv2_api -r -F dynamic
+```
+
 ### テストコマンド
 ```bash
 curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは"}' 'http://localhost:3000/synthesize'
