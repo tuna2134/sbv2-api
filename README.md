@@ -20,7 +20,7 @@ onnxsim使うことでモデルのサイズを軽くすることができます�
 - [x] Rustライブラリの実装
 - [ ] 余裕があればPyO3使ってPythonで利用可能にする
 - [ ] GPU対応(優先的にCUDA)
-- [ ] WASM変換
+- [ ] WASM変換(ortがサポートやめたので、中止)
 
 ## ディレクトリー説明
 - `sbv2_api` - Style-Bert-VITS2の推論Web API
