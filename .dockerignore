@@ -1,0 +1,6 @@
+target/
+models/
+docker/
+.env*
+renovate.json
+*.py

@@ -5,7 +5,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use sbv2_core::tts::TTSModel;
+use sbv2_core::tts::TTSModelHolder;
 use serde::Deserialize;
 use std::env;
 use std::sync::Arc;
@@ -18,34 +18,46 @@ use crate::error::AppResult;
 #[derive(Deserialize)]
 struct SynthesizeRequest {
     text: String,
+    ident: String,
 }
 
 async fn synthesize(
     State(state): State<Arc<AppState>>,
-    Json(SynthesizeRequest { text }): Json<SynthesizeRequest>,
+    Json(SynthesizeRequest { text, ident }): Json<SynthesizeRequest>,
 ) -> AppResult<impl IntoResponse> {
     let buffer = {
         let mut tts_model = state.tts_model.lock().await;
         let tts_model = if let Some(tts_model) = &*tts_model {
             tts_model
         } else {
-            *tts_model = Some(TTSModel::new(
+            let mut tts_holder = TTSModelHolder::new(
                 &fs::read(env::var("BERT_MODEL_PATH")?).await?,
-                &fs::read(env::var("MAIN_MODEL_PATH")?).await?,
-                &fs::read(env::var("STYLE_VECTORS_PATH")?).await?,
                 &fs::read(env::var("TOKENIZER_PATH")?).await?,
-            )?);
+            )?;
+            tts_holder.load(
+                "tsukuyomi",
+                fs::read(env::var("STYLE_VECTORS_PATH")?).await?,
+                fs::read(env::var("MODEL_PATH")?).await?,
+            )?;
+            *tts_model = Some(tts_holder);
             tts_model.as_ref().unwrap()
         };
         let (bert_ori, phones, tones, lang_ids) = tts_model.parse_text(&text)?;
-        let style_vector = tts_model.get_style_vector(0, 1.0)?;
-        tts_model.synthesize(bert_ori.to_owned(), phones, tones, lang_ids, style_vector)?
+        let style_vector = tts_model.get_style_vector(&ident, 0, 1.0)?;
+        tts_model.synthesize(
+            ident,
+            bert_ori.to_owned(),
+            phones,
+            tones,
+            lang_ids,
+            style_vector,
+        )?
     };
     Ok(([(CONTENT_TYPE, "audio/wav")], buffer))
 }
 
 struct AppState {
-    tts_model: Arc<Mutex<Option<TTSModel>>>,
+    tts_model: Arc<Mutex<Option<TTSModelHolder>>>,
 }
 
 #[tokio::main]

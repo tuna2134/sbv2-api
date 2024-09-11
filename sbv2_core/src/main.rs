@@ -5,17 +5,21 @@ use sbv2_core::{error, tts};
 fn main() -> error::Result<()> {
     let text = "眠たい";
 
-    let tts_model = tts::TTSModel::new(
+    let mut tts_model = tts::TTSModelHolder::new(
         fs::read("models/debert.onnx")?,
         fs::read("models/model_opt.onnx")?,
+    )?;
+    tts_model.load(
+        "tsukuyomi",
         fs::read("models/style_vectors.json")?,
         fs::read("models/tokenizer.json")?,
     )?;
 
     let (bert_ori, phones, tones, lang_ids) = tts_model.parse_text(text)?;
 
-    let style_vector = tts_model.get_style_vector(0, 1.0)?;
+    let style_vector = tts_model.get_style_vector("tsukuyomi", 0, 1.0)?;
     let data = tts_model.synthesize(
+        "tsukuyomi",
         bert_ori.to_owned(),
         phones.clone(),
         tones.clone(),
@@ -26,6 +30,7 @@ fn main() -> error::Result<()> {
     let now = Instant::now();
     for _ in 0..10 {
         tts_model.synthesize(
+            "tsukuyomi",
             bert_ori.to_owned(),
             phones.clone(),
             tones.clone(),
