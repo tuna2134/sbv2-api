@@ -34,6 +34,7 @@ cargo run -p sbv2_api -r
 ### テストコマンド
 ```bash
 curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは"}' 'http://localhost:3000/synthesize'
+```
 
 ## 謝辞
 - [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
