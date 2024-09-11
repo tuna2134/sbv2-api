@@ -4,14 +4,27 @@ use ndarray::{array, s, Array1, Array2, Axis};
 use ort::{GraphOptimizationLevel, Session};
 use std::io::Cursor;
 
-pub fn load_model(model_file: &str) -> Result<Session> {
-    let session = Session::builder()?
+#[allow(clippy::vec_init_then_push)]
+pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
+    let mut exp = Vec::new();
+    #[cfg(feature = "cuda")]
+    {
+        let mut cuda = ort::CUDAExecutionProvider::default()
+            .with_conv_algorithm_search(ort::CUDAExecutionProviderCuDNNConvAlgoSearch::Default);
+        #[cfg(feature = "cuda_tf32")]
+        {
+            cuda = cuda.with_tf32(true);
+        }
+        exp.push(cuda.build());
+    }
+    exp.push(ort::CPUExecutionProvider::default().build());
+    Ok(Session::builder()?
+        .with_execution_providers(exp)?
         .with_optimization_level(GraphOptimizationLevel::Level3)?
         .with_intra_threads(num_cpus::get_physical())?
         .with_parallel_execution(true)?
         .with_inter_threads(num_cpus::get_physical())?
-        .commit_from_file(model_file)?;
-    Ok(session)
+        .commit_from_memory(model_file.as_ref())?)
 }
 
 pub fn synthesize(

@@ -1,9 +1,11 @@
 use crate::error::Result;
-use crate::{bert, jtalk, model, nlp, norm, style, utils};
+use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
 use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
 use ort::Session;
+use tokenizers::Tokenizer;
 
 pub struct TTSModel {
+    tokenizer: Tokenizer,
     bert: Session,
     vits2: Session,
     style_vectors: Array2<f32>,
@@ -11,23 +13,26 @@ pub struct TTSModel {
 }
 
 impl TTSModel {
-    pub fn new(
-        bert_model_path: &str,
-        main_model_path: &str,
-        style_vector_path: &str,
+    pub fn new<P: AsRef<[u8]>>(
+        bert_model_bytes: P,
+        main_model_bytes: P,
+        style_vector_bytes: P,
+        tokenizer_bytes: P,
     ) -> Result<Self> {
-        let bert = model::load_model(bert_model_path)?;
-        let vits2 = model::load_model(main_model_path)?;
-        let style_vectors = style::load_style(style_vector_path)?;
+        let bert = model::load_model(bert_model_bytes)?;
+        let vits2 = model::load_model(main_model_bytes)?;
+        let style_vectors = style::load_style(style_vector_bytes)?;
         let jtalk = jtalk::JTalk::new()?;
+        let tokenizer = tokenizer::get_tokenizer(tokenizer_bytes)?;
         Ok(TTSModel {
             bert,
             vits2,
             style_vectors,
             jtalk,
+            tokenizer,
         })
     }
-
+    #[allow(clippy::type_complexity)]
     pub fn parse_text(
         &self,
         text: &str,
@@ -40,13 +45,11 @@ impl TTSModel {
         let phones = utils::intersperse(&phones, 0);
         let tones = utils::intersperse(&tones, 0);
         let lang_ids = utils::intersperse(&lang_ids, 0);
-        for i in 0..word2ph.len() {
-            word2ph[i] *= 2;
+        for item in &mut word2ph {
+            *item *= 2;
         }
         word2ph[0] += 1;
-
-        let tokenizer = jtalk::get_tokenizer()?;
-        let (token_ids, attention_masks) = jtalk::tokenize(&normalized_text, &tokenizer)?;
+        let (token_ids, attention_masks) = tokenizer::tokenize(&normalized_text, &self.tokenizer)?;
 
         let bert_content = bert::predict(&self.bert, token_ids, attention_masks)?;
 
@@ -58,9 +61,9 @@ impl TTSModel {
         );
 
         let mut phone_level_feature = vec![];
-        for i in 0..word2ph.len() {
+        for (i, reps) in word2ph.iter().enumerate() {
             let repeat_feature = {
-                let (reps_rows, reps_cols) = (word2ph[i], 1);
+                let (reps_rows, reps_cols) = (*reps, 1);
                 let arr_len = bert_content.slice(s![i, ..]).len();
 
                 let mut results: Array2<f32> =

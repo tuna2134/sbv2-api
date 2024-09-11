@@ -9,6 +9,7 @@ use sbv2_core::tts::TTSModel;
 use serde::Deserialize;
 use std::env;
 use std::sync::Arc;
+use tokio::fs;
 use tokio::sync::Mutex;
 
 mod error;
@@ -29,9 +30,10 @@ async fn synthesize(
             tts_model
         } else {
             *tts_model = Some(TTSModel::new(
-                &env::var("BERT_MODEL_PATH")?,
-                &env::var("MAIN_MODEL_PATH")?,
-                &env::var("STYLE_VECTORS_PATH")?,
+                &fs::read(env::var("BERT_MODEL_PATH")?).await?,
+                &fs::read(env::var("MAIN_MODEL_PATH")?).await?,
+                &fs::read(env::var("STYLE_VECTORS_PATH")?).await?,
+                &fs::read(env::var("TOKENIZER_PATH")?).await?,
             )?);
             tts_model.as_ref().unwrap()
         };
