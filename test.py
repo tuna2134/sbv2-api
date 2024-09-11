@@ -1,6 +1,5 @@
 import requests
 
-
 res = requests.post('http://localhost:3000/synthesize', json={
     "text": "おはようございます",
 })

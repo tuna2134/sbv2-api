@@ -1,6 +1,6 @@
 target
 models/*.onnx
 models/*.json
-venv
+venv/
 .env
 output.wav
