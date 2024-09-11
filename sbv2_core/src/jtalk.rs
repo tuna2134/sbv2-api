@@ -4,13 +4,13 @@ use crate::norm::{replace_punctuation, PUNCTUATIONS};
 use jpreprocess::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use std::cmp::Reverse;
 use std::collections::HashSet;
 use std::sync::Arc;
-use tokenizers::Tokenizer;
 
 type JPreprocessType = JPreprocess<DefaultFetcher>;
 
-fn get_jtalk() -> Result<JPreprocessType> {
+fn initialize_jtalk() -> Result<JPreprocessType> {
     let config = JPreprocessConfig {
         dictionary: SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic),
         user_dictionary: None,
@@ -50,7 +50,7 @@ pub struct JTalk {
 
 impl JTalk {
     pub fn new() -> Result<Self> {
-        let jpreprocess = Arc::new(get_jtalk()?);
+        let jpreprocess = Arc::new(initialize_jtalk()?);
         Ok(Self { jpreprocess })
     }
 
@@ -64,7 +64,7 @@ impl JTalk {
 static KATAKANA_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\u30A0-\u30FF]+").unwrap());
 static MORA_PATTERN: Lazy<Vec<String>> = Lazy::new(|| {
     let mut sorted_keys: Vec<String> = MORA_KATA_TO_MORA_PHONEMES.keys().cloned().collect();
-    sorted_keys.sort_by(|a, b| b.len().cmp(&a.len()));
+    sorted_keys.sort_by_key(|b| Reverse(b.len()));
     sorted_keys
 });
 static LONG_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\w)(ー*)").unwrap());
@@ -128,8 +128,8 @@ impl JTalkProcess {
             JTalkProcess::align_tones(phone_w_punct, phone_tone_list_wo_punct)?;
 
         let mut sep_tokenized: Vec<Vec<String>> = Vec::new();
-        for i in 0..seq_text.len() {
-            let text = seq_text[i].clone();
+        for seq_text_item in &seq_text {
+            let text = seq_text_item.clone();
             if !PUNCTUATIONS.contains(&text.as_str()) {
                 sep_tokenized.push(text.chars().map(|x| x.to_string()).collect());
             } else {
@@ -389,23 +389,4 @@ impl JTalkProcess {
 
         Ok(phones)
     }
-}
-
-pub fn get_tokenizer() -> Result<Tokenizer> {
-    let tokenizer = Tokenizer::from_file("tokenizer.json")?;
-    Ok(tokenizer)
-}
-
-pub fn tokenize(text: &str, tokenizer: &Tokenizer) -> Result<(Vec<i64>, Vec<i64>)> {
-    let mut token_ids = vec![1];
-    let mut attention_masks = vec![1];
-    for content in text.chars() {
-        let token = tokenizer.encode(content.to_string(), false)?;
-        let ids = token.get_ids();
-        token_ids.extend(ids.iter().map(|&x| x as i64));
-        attention_masks.extend(token.get_attention_mask().iter().map(|&x| x as i64));
-    }
-    token_ids.push(2);
-    attention_masks.push(1);
-    Ok((token_ids, attention_masks))
 }

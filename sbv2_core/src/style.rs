@@ -8,8 +8,8 @@ pub struct Data {
     pub data: Vec<Vec<f32>>,
 }
 
-pub fn load_style(path: &str) -> Result<Array2<f32>> {
-    let data: Data = serde_json::from_str(&std::fs::read_to_string(path)?)?;
+pub fn load_style<P: AsRef<[u8]>>(path: P) -> Result<Array2<f32>> {
+    let data: Data = serde_json::from_slice(path.as_ref())?;
     Ok(Array2::from_shape_vec(
         data.shape,
         data.data.iter().flatten().copied().collect(),
