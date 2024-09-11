@@ -88,6 +88,20 @@ impl AppState {
                         .iter()
                         .collect::<String>(),
                 );
+            } else if name.ends_with(".sbv2") {
+                let entry = &name[..name.len() - 5];
+                log::info!("Try loading: {entry}");
+                let sbv2_bytes = match fs::read(format!("{models}/{entry}.sbv2")).await {
+                    Ok(b) => b,
+                    Err(e) => {
+                        log::warn!("Error loading sbv2_bytes from file {entry}: {e}");
+                        continue;
+                    }
+                };
+                if let Err(e) = tts_model.load_sbv2file(&entry, sbv2_bytes) {
+                    log::warn!("Error loading {entry}: {e}");
+                };
+                log::info!("Loaded: {entry}");
             }
         }
         for entry in entries {
@@ -110,6 +124,7 @@ impl AppState {
             if let Err(e) = tts_model.load(&entry, style_vectors_bytes, vits2_bytes) {
                 log::warn!("Error loading {entry}: {e}");
             };
+            log::info!("Loaded: {entry}");
         }
         Ok(Self {
             tts_model: Arc::new(Mutex::new(tts_model)),
