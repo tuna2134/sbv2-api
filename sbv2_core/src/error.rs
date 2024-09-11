@@ -18,6 +18,8 @@ pub enum Error {
     IoError(#[from] std::io::Error),
     #[error("hound error: {0}")]
     HoundError(#[from] hound::Error),
+    #[error("model not found error")]
+    ModelNotFoundError(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

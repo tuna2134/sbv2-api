@@ -17,7 +17,7 @@ pub fn load_style<P: AsRef<[u8]>>(path: P) -> Result<Array2<f32>> {
 }
 
 pub fn get_style_vector(
-    style_vectors: Array2<f32>,
+    style_vectors: &Array2<f32>,
     style_id: i32,
     weight: f32,
 ) -> Result<Array1<f32>> {
