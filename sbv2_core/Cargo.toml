@@ -22,3 +22,4 @@ tokenizers = "0.20.0"
 cuda = ["ort/cuda"]
 cuda_tf32 = []
 dynamic = ["ort/load-dynamic"]
+directml = ["ort/directml"]
