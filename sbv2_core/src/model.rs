@@ -26,7 +26,7 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
         .with_inter_threads(num_cpus::get_physical())?
         .commit_from_memory(model_file.as_ref())?)
 }
-
+#[allow(clippy::too_many_arguments)]
 pub fn synthesize(
     session: &Session,
     bert_ori: Array2<f32>,
@@ -34,6 +34,8 @@ pub fn synthesize(
     tones: Array1<i64>,
     lang_ids: Array1<i64>,
     style_vector: Array1<f32>,
+    sdp_ratio: f32,
+    length_scale: f32,
 ) -> Result<Vec<u8>> {
     let bert = bert_ori.insert_axis(Axis(0));
     let x_tst_lengths: Array1<i64> = array![x_tst.shape()[0] as i64];
@@ -49,6 +51,8 @@ pub fn synthesize(
         "language" => lang_ids,
         "bert" => bert,
         "style_vec" => style_vector,
+        "sdp_ratio" => array![sdp_ratio],
+        "length_scale" => array![length_scale],
     }?)?;
 
     let audio_array = outputs
