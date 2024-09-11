@@ -4,3 +4,4 @@ members = ["sbv2_api", "sbv2_core"]
 
 [workspace.dependencies]
 anyhow = "1.0.86"
+dotenvy = "0.15.7"
