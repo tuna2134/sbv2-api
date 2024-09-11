@@ -1,5 +1,6 @@
 import numpy as np
 import json
+from io import BytesIO
 from style_bert_vits2.nlp import bert_models
 from style_bert_vits2.constants import Languages
 from style_bert_vits2.models.infer import get_net_g, get_text
@@ -11,6 +12,9 @@ from style_bert_vits2.constants import (
     DEFAULT_STYLE_WEIGHT,
     Languages,
 )
+import os
+from tarfile import open as taropen, TarInfo
+from zstandard import ZstdCompressor
 from style_bert_vits2.tts_model import TTSModel
 import numpy as np
 from argparse import ArgumentParser
@@ -141,3 +145,23 @@ torch.onnx.export(
     ],
     output_names=["output"],
 )
+os.system(f"onnxsim ../models/model_{out_name}.onnx ../models/model_{out_name}.onnx")
+onnxfile = open(f"../models/model_{out_name}.onnx", "rb").read()
+stylefile = open(f"../models/style_vectors_{out_name}.json", "rb").read()
+version = bytes("1", "utf8")
+with taropen(f"../models/tmp_{out_name}.sbv2tar", "w") as w:
+
+    def add_tar(f, b):
+        t = TarInfo(f)
+        t.size = len(b)
+        w.addfile(t, BytesIO(b))
+
+    add_tar("version.txt", version)
+    add_tar("model.onnx", onnxfile)
+    add_tar("style_vectors.json", stylefile)
+open(f"../models/{out_name}.sbv2", "wb").write(
+    ZstdCompressor(threads=-1, level=22).compress(
+        open(f"../models/tmp_{out_name}.sbv2tar", "rb").read()
+    )
+)
+os.unlink(f"../models/tmp_{out_name}.sbv2tar")
