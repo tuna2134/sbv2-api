@@ -1,0 +1,3 @@
+style-bert-vits2
+onnxsim
+numpy<3

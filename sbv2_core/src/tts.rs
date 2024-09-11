@@ -1,33 +1,91 @@
-use crate::error::Result;
-use crate::{bert, jtalk, model, nlp, norm, style, utils};
+use crate::error::{Error, Result};
+use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
 use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
 use ort::Session;
+use tokenizers::Tokenizer;
+
+#[derive(PartialEq, Eq, Clone)]
+pub struct TTSIdent(String);
+
+impl std::fmt::Display for TTSIdent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)?;
+        Ok(())
+    }
+}
+
+impl<S> From<S> for TTSIdent
+where
+    S: AsRef<str>,
+{
+    fn from(value: S) -> Self {
+        TTSIdent(value.as_ref().to_string())
+    }
+}
 
 pub struct TTSModel {
-    bert: Session,
     vits2: Session,
     style_vectors: Array2<f32>,
+    ident: TTSIdent,
+}
+
+pub struct TTSModelHolder {
+    tokenizer: Tokenizer,
+    bert: Session,
+    models: Vec<TTSModel>,
     jtalk: jtalk::JTalk,
 }
 
-impl TTSModel {
-    pub fn new(
-        bert_model_path: &str,
-        main_model_path: &str,
-        style_vector_path: &str,
-    ) -> Result<Self> {
-        let bert = model::load_model(bert_model_path)?;
-        let vits2 = model::load_model(main_model_path)?;
-        let style_vectors = style::load_style(style_vector_path)?;
+impl TTSModelHolder {
+    pub fn new<P: AsRef<[u8]>>(bert_model_bytes: P, tokenizer_bytes: P) -> Result<Self> {
+        let bert = model::load_model(bert_model_bytes)?;
         let jtalk = jtalk::JTalk::new()?;
-        Ok(TTSModel {
+        let tokenizer = tokenizer::get_tokenizer(tokenizer_bytes)?;
+        Ok(TTSModelHolder {
             bert,
-            vits2,
-            style_vectors,
+            models: vec![],
             jtalk,
+            tokenizer,
         })
     }
 
+    pub fn models(&self) -> Vec<String> {
+        self.models.iter().map(|m| m.ident.to_string()).collect()
+    }
+
+    pub fn load<I: Into<TTSIdent>, P: AsRef<[u8]>>(
+        &mut self,
+        ident: I,
+        style_vectors_bytes: P,
+        vits2_bytes: P,
+    ) -> Result<()> {
+        let ident = ident.into();
+        if self.find_model(ident.clone()).is_err() {
+            self.models.push(TTSModel {
+                vits2: model::load_model(vits2_bytes)?,
+                style_vectors: style::load_style(style_vectors_bytes)?,
+                ident,
+            })
+        }
+        Ok(())
+    }
+
+    pub fn unload<I: Into<TTSIdent>>(&mut self, ident: I) -> bool {
+        let ident = ident.into();
+        if let Some((i, _)) = self
+            .models
+            .iter()
+            .enumerate()
+            .find(|(_, m)| m.ident == ident)
+        {
+            self.models.remove(i);
+            true
+        } else {
+            false
+        }
+    }
+
+    #[allow(clippy::type_complexity)]
     pub fn parse_text(
         &self,
         text: &str,
@@ -40,13 +98,11 @@ impl TTSModel {
         let phones = utils::intersperse(&phones, 0);
         let tones = utils::intersperse(&tones, 0);
         let lang_ids = utils::intersperse(&lang_ids, 0);
-        for i in 0..word2ph.len() {
-            word2ph[i] *= 2;
+        for item in &mut word2ph {
+            *item *= 2;
         }
         word2ph[0] += 1;
-
-        let tokenizer = jtalk::get_tokenizer()?;
-        let (token_ids, attention_masks) = jtalk::tokenize(&normalized_text, &tokenizer)?;
+        let (token_ids, attention_masks) = tokenizer::tokenize(&normalized_text, &self.tokenizer)?;
 
         let bert_content = bert::predict(&self.bert, token_ids, attention_masks)?;
 
@@ -58,9 +114,9 @@ impl TTSModel {
         );
 
         let mut phone_level_feature = vec![];
-        for i in 0..word2ph.len() {
+        for (i, reps) in word2ph.iter().enumerate() {
             let repeat_feature = {
-                let (reps_rows, reps_cols) = (word2ph[i], 1);
+                let (reps_rows, reps_cols) = (*reps, 1);
                 let arr_len = bert_content.slice(s![i, ..]).len();
 
                 let mut results: Array2<f32> =
@@ -92,25 +148,44 @@ impl TTSModel {
         ))
     }
 
-    pub fn get_style_vector(&self, style_id: i32, weight: f32) -> Result<Array1<f32>> {
-        style::get_style_vector(self.style_vectors.clone(), style_id, weight)
+    fn find_model<I: Into<TTSIdent>>(&self, ident: I) -> Result<&TTSModel> {
+        let ident = ident.into();
+        self.models
+            .iter()
+            .find(|m| m.ident == ident)
+            .ok_or(Error::ModelNotFoundError(ident.to_string()))
     }
 
-    pub fn synthesize(
+    pub fn get_style_vector<I: Into<TTSIdent>>(
         &self,
+        ident: I,
+        style_id: i32,
+        weight: f32,
+    ) -> Result<Array1<f32>> {
+        style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn synthesize<I: Into<TTSIdent>>(
+        &self,
+        ident: I,
         bert_ori: Array2<f32>,
         phones: Array1<i64>,
         tones: Array1<i64>,
         lang_ids: Array1<i64>,
         style_vector: Array1<f32>,
+        sdp_ratio: f32,
+        length_scale: f32,
     ) -> Result<Vec<u8>> {
         let buffer = model::synthesize(
-            &self.vits2,
+            &self.find_model(ident)?.vits2,
             bert_ori.to_owned(),
             phones,
             tones,
             lang_ids,
             style_vector,
+            sdp_ratio,
+            length_scale,
         )?;
         Ok(buffer)
     }

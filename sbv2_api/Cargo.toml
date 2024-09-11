@@ -6,7 +6,14 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 axum = "0.7.5"
-dotenvy = "0.15.7"
+dotenvy.workspace = true
+env_logger = "0.11.5"
+log = "0.4.22"
 sbv2_core = { version = "0.1.0", path = "../sbv2_core" }
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
+
+[features]
+cuda = ["sbv2_core/cuda"]
+cuda_tf32 = ["sbv2_core/cuda_tf32"]
+dynamic = ["sbv2_core/dynamic"]

@@ -5,14 +5,20 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
+dotenvy.workspace = true
 hound = "3.5.1"
 jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
 ndarray = "0.16.1"
 num_cpus = "1.16.0"
 once_cell = "1.19.0"
-ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.5" }
+ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.6" }
 regex = "1.10.6"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 thiserror = "1.0.63"
 tokenizers = "0.20.0"
+
+[features]
+cuda = ["ort/cuda"]
+cuda_tf32 = []
+dynamic = ["ort/load-dynamic"]
