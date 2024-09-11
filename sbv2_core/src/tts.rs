@@ -48,9 +48,11 @@ impl TTSModelHolder {
             tokenizer,
         })
     }
+
     pub fn models(&self) -> Vec<String> {
         self.models.iter().map(|m| m.ident.to_string()).collect()
     }
+
     pub fn load<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -67,6 +69,7 @@ impl TTSModelHolder {
         }
         Ok(())
     }
+
     pub fn unload<I: Into<TTSIdent>>(&mut self, ident: I) -> bool {
         let ident = ident.into();
         if let Some((i, _)) = self
@@ -81,6 +84,7 @@ impl TTSModelHolder {
             false
         }
     }
+
     #[allow(clippy::type_complexity)]
     pub fn parse_text(
         &self,
@@ -143,6 +147,7 @@ impl TTSModelHolder {
             lang_ids.into(),
         ))
     }
+
     fn find_model<I: Into<TTSIdent>>(&self, ident: I) -> Result<&TTSModel> {
         let ident = ident.into();
         self.models
@@ -159,6 +164,7 @@ impl TTSModelHolder {
     ) -> Result<Array1<f32>> {
         style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
     }
+
     #[allow(clippy::too_many_arguments)]
     pub fn synthesize<I: Into<TTSIdent>>(
         &self,
