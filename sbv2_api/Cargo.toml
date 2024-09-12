@@ -7,13 +7,16 @@ edition = "2021"
 anyhow.workspace = true
 axum = "0.7.5"
 dotenvy.workspace = true
-env_logger = "0.11.5"
+env_logger.workspace = true
 log = "0.4.22"
-sbv2_core = { version = "0.1.0", path = "../sbv2_core" }
+sbv2_core = { version = "0.1.1", path = "../sbv2_core" }
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
 
 [features]
+coreml = ["sbv2_core/coreml"]
 cuda = ["sbv2_core/cuda"]
 cuda_tf32 = ["sbv2_core/cuda_tf32"]
 dynamic = ["sbv2_core/dynamic"]
+directml = ["sbv2_core/directml"]
+tensorrt = ["sbv2_core/tensorrt"]

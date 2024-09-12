@@ -26,6 +26,7 @@ fn sdp_default() -> f32 {
 fn length_default() -> f32 {
     1.0
 }
+
 #[derive(Deserialize)]
 struct SynthesizeRequest {
     text: String,
@@ -88,6 +89,20 @@ impl AppState {
                         .iter()
                         .collect::<String>(),
                 );
+            } else if name.ends_with(".sbv2") {
+                let entry = &name[..name.len() - 5];
+                log::info!("Try loading: {entry}");
+                let sbv2_bytes = match fs::read(format!("{models}/{entry}.sbv2")).await {
+                    Ok(b) => b,
+                    Err(e) => {
+                        log::warn!("Error loading sbv2_bytes from file {entry}: {e}");
+                        continue;
+                    }
+                };
+                if let Err(e) = tts_model.load_sbv2file(entry, sbv2_bytes) {
+                    log::warn!("Error loading {entry}: {e}");
+                };
+                log::info!("Loaded: {entry}");
             }
         }
         for entry in entries {
@@ -110,6 +125,7 @@ impl AppState {
             if let Err(e) = tts_model.load(&entry, style_vectors_bytes, vits2_bytes) {
                 log::warn!("Error loading {entry}: {e}");
             };
+            log::info!("Loaded: {entry}");
         }
         Ok(Self {
             tts_model: Arc::new(Mutex::new(tts_model)),
@@ -119,7 +135,7 @@ impl AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv().ok();
+    dotenvy::dotenv_override().ok();
     env_logger::init();
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))

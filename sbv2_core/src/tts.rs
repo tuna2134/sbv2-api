@@ -2,7 +2,10 @@ use crate::error::{Error, Result};
 use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
 use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
 use ort::Session;
+use std::io::{Cursor, Read};
+use tar::Archive;
 use tokenizers::Tokenizer;
+use zstd::decode_all;
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct TTSIdent(String);
@@ -38,7 +41,7 @@ pub struct TTSModelHolder {
 
 impl TTSModelHolder {
     pub fn new<P: AsRef<[u8]>>(bert_model_bytes: P, tokenizer_bytes: P) -> Result<Self> {
-        let bert = model::load_model(bert_model_bytes)?;
+        let bert = model::load_model(bert_model_bytes, true)?;
         let jtalk = jtalk::JTalk::new()?;
         let tokenizer = tokenizer::get_tokenizer(tokenizer_bytes)?;
         Ok(TTSModelHolder {
@@ -53,6 +56,35 @@ impl TTSModelHolder {
         self.models.iter().map(|m| m.ident.to_string()).collect()
     }
 
+    pub fn load_sbv2file<I: Into<TTSIdent>, P: AsRef<[u8]>>(
+        &mut self,
+        ident: I,
+        sbv2_bytes: P,
+    ) -> Result<()> {
+        let mut arc = Archive::new(Cursor::new(decode_all(Cursor::new(sbv2_bytes.as_ref()))?));
+        let mut vits2 = None;
+        let mut style_vectors = None;
+        let mut et = arc.entries()?;
+        while let Some(Ok(mut e)) = et.next() {
+            let pth = String::from_utf8_lossy(&e.path_bytes()).to_string();
+            let mut b = Vec::with_capacity(e.size() as usize);
+            e.read_to_end(&mut b)?;
+            match pth.as_str() {
+                "model.onnx" => vits2 = Some(b),
+                "style_vectors.json" => style_vectors = Some(b),
+                _ => continue,
+            }
+        }
+        if style_vectors.is_none() {
+            return Err(Error::ModelNotFoundError("style_vectors".to_string()));
+        }
+        if vits2.is_none() {
+            return Err(Error::ModelNotFoundError("vits2".to_string()));
+        }
+        self.load(ident, style_vectors.unwrap(), vits2.unwrap())?;
+        Ok(())
+    }
+
     pub fn load<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -62,7 +94,7 @@ impl TTSModelHolder {
         let ident = ident.into();
         if self.find_model(ident.clone()).is_err() {
             self.models.push(TTSModel {
-                vits2: model::load_model(vits2_bytes)?,
+                vits2: model::load_model(vits2_bytes, false)?,
                 style_vectors: style::load_style(style_vectors_bytes)?,
                 ident,
             })

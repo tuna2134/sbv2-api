@@ -4,11 +4,25 @@ use ndarray::{array, s, Array1, Array2, Axis};
 use ort::{GraphOptimizationLevel, Session};
 use std::io::Cursor;
 
-#[allow(clippy::vec_init_then_push)]
-pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
+#[allow(clippy::vec_init_then_push, unused_variables)]
+pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> {
     let mut exp = Vec::new();
+    #[cfg(feature = "tensorrt")]
+    {
+        if bert {
+            exp.push(
+                ort::TensorRTExecutionProvider::default()
+                    .with_fp16(true)
+                    .with_profile_min_shapes("input_ids:1x1,attention_mask:1x1")
+                    .with_profile_max_shapes("input_ids:1x100,attention_mask:1x100")
+                    .with_profile_opt_shapes("input_ids:1x25,attention_mask:1x25")
+                    .build(),
+            );
+        }
+    }
     #[cfg(feature = "cuda")]
     {
+        #[allow(unused_mut)]
         let mut cuda = ort::CUDAExecutionProvider::default()
             .with_conv_algorithm_search(ort::CUDAExecutionProviderCuDNNConvAlgoSearch::Default);
         #[cfg(feature = "cuda_tf32")]
@@ -16,6 +30,14 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
             cuda = cuda.with_tf32(true);
         }
         exp.push(cuda.build());
+    }
+    #[cfg(feature = "directml")]
+    {
+        exp.push(ort::DirectMLExecutionProvider::default().build());
+    }
+    #[cfg(feature = "coreml")]
+    {
+        exp.push(ort::CoreMLExecutionProvider::default().build());
     }
     exp.push(ort::CPUExecutionProvider::default().build());
     Ok(Session::builder()?
@@ -26,6 +48,7 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
         .with_inter_threads(num_cpus::get_physical())?
         .commit_from_memory(model_file.as_ref())?)
 }
+
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize(
     session: &Session,
