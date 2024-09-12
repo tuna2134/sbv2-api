@@ -10,6 +10,7 @@ repository = "https://github.com/tuna2134/sbv2-api"
 [dependencies]
 anyhow.workspace = true
 dotenvy.workspace = true
+env_logger.workspace = true
 hound = "3.5.1"
 jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
 ndarray = "0.16.1"
@@ -29,3 +30,4 @@ cuda = ["ort/cuda"]
 cuda_tf32 = []
 dynamic = ["ort/load-dynamic"]
 directml = ["ort/directml"]
+tensorrt = ["ort/tensorrt"]

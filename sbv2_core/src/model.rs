@@ -4,11 +4,25 @@ use ndarray::{array, s, Array1, Array2, Axis};
 use ort::{GraphOptimizationLevel, Session};
 use std::io::Cursor;
 
-#[allow(clippy::vec_init_then_push)]
-pub fn load_model<P: AsRef<[u8]>>(model_file: P) -> Result<Session> {
+#[allow(clippy::vec_init_then_push, unused_variables)]
+pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> {
     let mut exp = Vec::new();
+    #[cfg(feature = "tensorrt")]
+    {
+        if bert {
+            exp.push(
+                ort::TensorRTExecutionProvider::default()
+                    .with_fp16(true)
+                    .with_profile_min_shapes("input_ids:1x1,attention_mask:1x1")
+                    .with_profile_max_shapes("input_ids:1x100,attention_mask:1x100")
+                    .with_profile_opt_shapes("input_ids:1x25,attention_mask:1x25")
+                    .build(),
+            );
+        }
+    }
     #[cfg(feature = "cuda")]
     {
+        #[allow(unused_mut)]
         let mut cuda = ort::CUDAExecutionProvider::default()
             .with_conv_algorithm_search(ort::CUDAExecutionProviderCuDNNConvAlgoSearch::Default);
         #[cfg(feature = "cuda_tf32")]

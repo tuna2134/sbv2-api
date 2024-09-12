@@ -41,7 +41,7 @@ pub struct TTSModelHolder {
 
 impl TTSModelHolder {
     pub fn new<P: AsRef<[u8]>>(bert_model_bytes: P, tokenizer_bytes: P) -> Result<Self> {
-        let bert = model::load_model(bert_model_bytes)?;
+        let bert = model::load_model(bert_model_bytes, true)?;
         let jtalk = jtalk::JTalk::new()?;
         let tokenizer = tokenizer::get_tokenizer(tokenizer_bytes)?;
         Ok(TTSModelHolder {
@@ -55,7 +55,7 @@ impl TTSModelHolder {
     pub fn models(&self) -> Vec<String> {
         self.models.iter().map(|m| m.ident.to_string()).collect()
     }
-    
+
     pub fn load_sbv2file<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -94,7 +94,7 @@ impl TTSModelHolder {
         let ident = ident.into();
         if self.find_model(ident.clone()).is_err() {
             self.models.push(TTSModel {
-                vits2: model::load_model(vits2_bytes)?,
+                vits2: model::load_model(vits2_bytes, false)?,
                 style_vectors: style::load_style(style_vectors_bytes)?,
                 ident,
             })

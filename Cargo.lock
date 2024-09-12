@@ -1756,6 +1756,7 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "dotenvy",
+ "env_logger",
  "hound",
  "jpreprocess",
  "ndarray",
