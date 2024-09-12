@@ -1,20 +1,19 @@
 use pyo3::prelude::*;
-use sbv2_core::tts::TTSModel as BaseTTSModel;
-use numpy::{convert::IntoPyArray
+use sbv2_core::tts::TTSModelHolder;
 
 #[pyclass]
 pub struct TTSModel {
-    pub model: BaseTTSModel,
+    pub model: TTSModelHolder,
 }
 
 #[pymethods]
 impl TTSModel {
     #[new]
-    fn new(bert_model_path: &str, main_model_path: &str, style_vectors_path: &str) -> anyhow::Result<Self> {
+    fn new(bert_model_bytes: Vec<u8>, tokenizer_bytes: Vec<u8>) -> anyhow::Result<Self> {
         Ok(Self {
-            model: BaseTTSModel::new(bert_model_path, main_model_path, style_vectors_path)?,
+            model: TTSModelHolder::new(bert_model_bytes, tokenizer_bytes)?,
         })
     }
 
-    fn get_style_vector
+    fn load()
 }
