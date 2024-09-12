@@ -6,6 +6,7 @@ def main():
         bert = f.read()
     with open("../models/tokenizer.json", "rb") as f:
         tokenizer = f.read()
+    print("Loading models...")
     
     model = TTSModel(bert, tokenizer)
 
