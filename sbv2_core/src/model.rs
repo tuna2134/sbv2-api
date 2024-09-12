@@ -35,6 +35,10 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> 
     {
         exp.push(ort::DirectMLExecutionProvider::default().build());
     }
+    #[cfg(feature = "coreml")]
+    {
+        exp.push(ort::CoreMLExecutionProvider::default().build());
+    }
     exp.push(ort::CPUExecutionProvider::default().build());
     Ok(Session::builder()?
         .with_execution_providers(exp)?
