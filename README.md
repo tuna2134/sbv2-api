@@ -79,8 +79,8 @@ curl http://localhost:3000/models
 - `cuda_tf32` featureでcudaのtf32機能
 - `tensorrt` featureでbert部分のtensorrt利用
 - `dynamic` featureで手元のonnxruntime共有ライブラリを利用(`ORT_DYLIB_PATH=./libonnxruntime.dll`などで指定)
-- `directml` featureでdirectmlの利用
-ができます。
+- `directml` featureでdirectmlの利用ができます。
+- `coreml` featureでcoremlの利用ができます。
 
 ### 環境変数
 
