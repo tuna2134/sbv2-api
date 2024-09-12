@@ -9,6 +9,7 @@ def main():
     print("Loading models...")
     
     model = TTSModel(bert, tokenizer)
+    print("Models loaded!")
 
     with open("../models/amitaro.sbv2", "rb") as f:
         model.load_sbv2file(f.read())
