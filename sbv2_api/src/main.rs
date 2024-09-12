@@ -99,7 +99,7 @@ impl AppState {
                         continue;
                     }
                 };
-                if let Err(e) = tts_model.load_sbv2file(&entry, sbv2_bytes) {
+                if let Err(e) = tts_model.load_sbv2file(entry, sbv2_bytes) {
                     log::warn!("Error loading {entry}: {e}");
                 };
                 log::info!("Loaded: {entry}");
