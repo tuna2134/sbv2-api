@@ -1834,13 +1834,14 @@ name = "sbv2_bindings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "ndarray",
  "pyo3",
  "sbv2_core",
 ]
 
 [[package]]
 name = "sbv2_core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "dotenvy",
