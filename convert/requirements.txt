@@ -2,3 +2,4 @@ style-bert-vits2
 onnxsim
 numpy<2
 zstandard
+onnxruntime
