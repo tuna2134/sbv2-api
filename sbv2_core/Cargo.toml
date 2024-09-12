@@ -1,11 +1,12 @@
 [package]
 name = "sbv2_core"
 description = "Style-Bert-VITSの推論ライブラリ"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT"
 readme = "../README.md"
 repository = "https://github.com/tuna2134/sbv2-api"
+documentation = "https://docs.rs/sbv2_core"
 
 [dependencies]
 anyhow.workspace = true
@@ -13,7 +14,7 @@ dotenvy.workspace = true
 env_logger.workspace = true
 hound = "3.5.1"
 jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
-ndarray = "0.16.1"
+ndarray.workspace = true
 num_cpus = "1.16.0"
 once_cell = "1.19.0"
 ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.6" }
