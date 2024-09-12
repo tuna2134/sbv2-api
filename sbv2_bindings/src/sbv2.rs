@@ -1,7 +1,10 @@
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 use sbv2_core::tts::TTSModelHolder;
 
 use crate::style::StyleVector;
+
+use std::fs;
 
 #[pyclass]
 pub struct TTSModel {
@@ -17,8 +20,23 @@ impl TTSModel {
         })
     }
 
+    #[staticmethod]
+    fn from_path(bert_model_path: String, tokenizer_path: String) -> anyhow::Result<Self> {
+        Ok(Self {
+            model: TTSModelHolder::new(
+                fs::read(bert_model_path)?,
+                fs::read(tokenizer_path)?,
+            )?,
+        })
+    }
+
     fn load_sbv2file(&mut self, ident: String, sbv2file_bytes: Vec<u8>) -> anyhow::Result<()> {
         self.model.load_sbv2file(ident, sbv2file_bytes)?;
+        Ok(())
+    }
+
+    fn load_sbv2file_from_path(&mut self, ident: String, sbv2file_path: String) -> anyhow::Result<()> {
+        self.model.load_sbv2file(ident, fs::read(sbv2file_path)?)?;
         Ok(())
     }
 
@@ -33,16 +51,17 @@ impl TTSModel {
         ))
     }
 
-    fn synthesize(
-        &self,
+    fn synthesize<'p>(
+        &'p self,
+        py: Python<'p>,
         text: String,
         ident: String,
         style_vector: StyleVector,
         sdp_ratio: f32,
         length_scale: f32,
-    ) -> anyhow::Result<Vec<u8>> {
+    ) -> anyhow::Result<Bound<PyBytes>> {
         let (bert_ori, phones, tones, lang_ids) = self.model.parse_text(&text)?;
-        Ok(self.model.synthesize(
+        let data = self.model.synthesize(
             ident,
             bert_ori,
             phones,
@@ -51,6 +70,7 @@ impl TTSModel {
             style_vector.get(),
             sdp_ratio,
             length_scale,
-        )?)
+        )?;
+        Ok(PyBytes::new_bound(py, &data))
     }
 }
