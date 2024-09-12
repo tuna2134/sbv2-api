@@ -1,57 +1,44 @@
-# sbv2-api
+# SBV2-API
 
-このプロジェクトは Style-Bert-ViTS2 を ONNX 化したものを Rust で実行するのを目的としています。
+## プログラミングに詳しくない方向け
 
-学習したい場合は、Style-Bert-ViTS2 学習方法 などで調べるとよいかもしれません。
+[こちら](https://github.com/tuna2134/sbv2-gui?tab=readme-ov-file)を参照してください。
+
+コマンドやpythonの知識なしで簡単に使えるバージョンです。(できることはほぼ同じ)
+
+## このプロジェクトについて
+
+このプロジェクトは Style-Bert-ViTS2 を ONNX 化したものを Rust で実行するのを目的としたライブラリです。
 
 JP-Extra しか対応していません。(基本的に対応する予定もありません)
 
-## ONNX 化する方法
+## 変換方法
 
-```sh
-cd convert
-# (何かしらの方法でvenv作成(推奨))
-pip install -r requirements.txt
-python convert_deberta.py
-python convert_model.py --style_file ../../style-bert-vits2/model_assets/something/style_vectors.npy --config_file ../../style-bert-vits2/model_assets/something/config.json --model_file ../../style-bert-vits2/model_assets/something/something_eXXX_sXXXX.safetensors
-```
+[こちら](https://github.com/tuna2134/sbv2-api/tree/main/convert)を参照してください。
 
 ## Todo
 
-- [x] WebAPI の実装
+- [x] REST API の実装
 - [x] Rust ライブラリの実装
-- [ ] 余裕があれば PyO3 使って Python で利用可能にする
-- [x] GPU 対応(優先的に CUDA)
-- [ ] WASM 変換(ort がサポートやめたので、中止)
+- [x] `.sbv2`フォーマットの開発
+- [ ] PyO3 を利用し、 Python から使えるようにする
+- [x] GPU 対応(CUDA)
+- [x] GPU 対応(DirectML)
+- [ ] WASM 変換(依存ライブラリの関係により現在は不可)
 
 ## 構造説明
 
 - `sbv2_api` - 推論用 REST API
 - `sbv2_core` - 推論コア部分
 - `docker` - docker ビルドスクリプト
+- `convert` - onnx, sbv2フォーマットへの変換スクリプト
 
-## API の起動方法
-
-```sh
-cargo run -p sbv2_api -r
-```
-
-### CUDA での起動
-
-```sh
-cargo run -p sbv2_api -r -F cuda,cuda_tf32
-```
-
-### Dynamic Link サポート
-
-```sh
-ORT_DYLIB_PATH=./libonnxruntime.dll cargo run -p sbv2_api -r -F dynamic
-```
+## プログラミングある程度できる人向けREST API起動方法
 
 ### models をインストール
 
 https://huggingface.co/googlefan/sbv2_onnx_models/tree/main
-の中身を models フォルダに配置
+の`tokenizer.json`,`debert.onnx`,`tsukuyomi.sbv2`を models フォルダに配置
 
 ### .env ファイルの作成
 
@@ -59,12 +46,51 @@ https://huggingface.co/googlefan/sbv2_onnx_models/tree/main
 cp .env.sample .env
 ```
 
-### テストコマンド
+### 起動
+
+CPUの場合は
+```sh
+docker run -it --rm -p 3000:3000 --name sbv2 \
+-v ./models:/work/models --env-file .env \
+ghcr.io/tuna2134/sbv2-api:cpu
+```
+
+CUDAの場合は
+```sh
+docker run -it --rm -p 3000:3000 --name sbv2 \
+-v ./models:/work/models --env-file .env \
+--gpus all \
+ghcr.io/tuna2134/sbv2-api:cuda
+```
+
+### 起動確認
 
 ```sh
 curl -XPOST -H "Content-type: application/json" -d '{"text": "こんにちは","ident": "tsukuyomi"}' 'http://localhost:3000/synthesize' --output "output.wav"
 curl http://localhost:3000/models
 ```
+
+## 開発者向けガイド
+
+### Feature flags
+
+`sbv2_api`、`sbv2_core`共に
+- `cuda` featureでcuda
+- `cuda_tf32` featureでcudaのtf32機能
+- `tensorrt` featureでbert部分のtensorrt利用
+- `dynamic` featureで手元のonnxruntime共有ライブラリを利用(`ORT_DYLIB_PATH=./libonnxruntime.dll`などで指定)
+- `directml` featureでdirectmlの利用
+ができます。
+
+### 環境変数
+
+以下の環境変数はライブラリ側では適用されません。
+
+ライブラリAPIについては`https://docs.rs/sbv2_core`を参照してください。
+
+- `ADDR` `localhost:3000`などのようにサーバー起動アドレスをコントロールできます。
+- `MODELS_PATH` sbv2モデルの存在するフォルダを指定できます。
+- `RUST_LOG` おなじみlog levelです。
 
 ## 謝辞
 
