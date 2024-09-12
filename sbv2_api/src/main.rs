@@ -26,6 +26,7 @@ fn sdp_default() -> f32 {
 fn length_default() -> f32 {
     1.0
 }
+
 #[derive(Deserialize)]
 struct SynthesizeRequest {
     text: String,
