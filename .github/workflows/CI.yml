@@ -46,6 +46,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
+          working-directory: sbv2_bindings
           sccache: 'true'
           manylinux: auto
       - name: Upload wheels
@@ -76,7 +77,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -p sbv2_bindings
+          args: --release --out dist --find-interpreter
+          working-directory: sbv2_bindings
           sccache: 'true'
           manylinux: musllinux_1_2
       - name: Upload wheels
@@ -104,7 +106,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -p sbv2_bindings
+          args: --release --out dist --find-interpreter
+          working-directory: sbv2_bindings
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -130,7 +133,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter -p sbv2_bindings
+          args: --release --out dist --find-interpreter
+          working-directory: sbv2_bindings
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -146,7 +150,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
-          args: --out dist -p sbv2_bindings
+          args: --out dist
+          working-directory: sbv2_bindings
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
