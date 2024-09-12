@@ -11,6 +11,7 @@ def main():
 
     with open("../models/amitaro.sbv2", "rb") as f:
         model.load_sbv2file(f.read())
+    print("All setup is done!")
     
     style_vector = model.get_style_vector("amitaro", 0, 1.0)
     with open("output.wav", "wb") as f:
