@@ -135,7 +135,7 @@ impl AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenvy::dotenv().ok();
+    dotenvy::dotenv_override().ok();
     env_logger::init();
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
