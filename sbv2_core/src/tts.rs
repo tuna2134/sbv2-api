@@ -206,8 +206,7 @@ impl TTSModelHolder {
         tones: Array1<i64>,
         lang_ids: Array1<i64>,
         style_vector: Array1<f32>,
-        sdp_ratio: f32,
-        length_scale: f32,
+        options: SynthesizeOptions,
     ) -> Result<Vec<u8>> {
         let buffer = model::synthesize(
             &self.find_model(ident)?.vits2,
@@ -216,9 +215,25 @@ impl TTSModelHolder {
             tones,
             lang_ids,
             style_vector,
-            sdp_ratio,
-            length_scale,
+            options.sdp_ratio,
+            options.length_scale,
         )?;
         Ok(buffer)
+    }
+}
+
+pub struct SynthesizeOptions {
+    sdp_ratio: f32,
+    length_scale: f32,
+    split_sentences: bool,
+}
+
+impl Default for SynthesizeOptions {
+    fn default() -> Self {
+        SynthesizeOptions {
+            sdp_ratio: 0.0,
+            length_scale: 1.0,
+            split_sentences: true,
+        }
     }
 }
