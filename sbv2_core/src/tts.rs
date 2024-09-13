@@ -226,7 +226,6 @@ impl TTSModelHolder {
                 )?;
                 audios.push(audio);
                 if i != texts.len() - 1 {
-                    // 44100 * 0.5s 無音区間
                     audios.push(Array3::zeros((1, 22050, 1)));
                 }
             }
