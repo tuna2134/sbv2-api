@@ -6,7 +6,7 @@ use std::env;
 fn main() -> anyhow::Result<()> {
     dotenvy::dotenv_override().ok();
     env_logger::init();
-    let text = "眠たい。";
+    let text = fs::read_to_string("content.txt")?;
     let ident = "aaa";
     let mut tts_holder = tts::TTSModelHolder::new(
         &fs::read(env::var("BERT_MODEL_PATH")?)?,

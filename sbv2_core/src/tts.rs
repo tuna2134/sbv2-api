@@ -125,7 +125,8 @@ impl TTSModelHolder {
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
         let normalized_text = norm::normalize_text(text);
 
-        let (phones, tones, mut word2ph) = self.jtalk.g2p(&normalized_text)?;
+        let process = self.jtalk.process_text(&normalized_text)?;
+        let (phones, tones, mut word2ph) = process.g2p()?;
         let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
 
         let phones = utils::intersperse(&phones, 0);
@@ -135,12 +136,17 @@ impl TTSModelHolder {
             *item *= 2;
         }
         word2ph[0] += 1;
-        let (token_ids, attention_masks) = tokenizer::tokenize(&normalized_text, &self.tokenizer)?;
+
+        let text = {
+            let (seq_text, _) = process.text_to_seq_kata()?;
+            seq_text.join("")
+        };
+        let (token_ids, attention_masks) = tokenizer::tokenize(&text, &self.tokenizer)?;
 
         let bert_content = bert::predict(&self.bert, token_ids, attention_masks)?;
 
         assert!(
-            word2ph.len() == normalized_text.chars().count() + 2,
+            word2ph.len() == text.chars().count() + 2,
             "{} {}",
             word2ph.len(),
             normalized_text.chars().count()
