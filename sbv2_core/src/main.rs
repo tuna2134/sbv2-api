@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
     tts_holder.load_sbv2file(ident, fs::read(env::var("MODEL_PATH")?)?)?;
 
     let audio = tts_holder.easy_synthesize(ident, &text, 0, tts::SynthesizeOptions::default())?;
-    fs::write("output.wav", &audio)?;
+    fs::write("output.wav", audio)?;
 
     Ok(())
 }

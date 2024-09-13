@@ -213,7 +213,7 @@ impl TTSModelHolder {
     ) -> Result<Vec<u8>> {
         let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
         let audio_array = if options.split_sentences {
-            let texts: Vec<&str> = text.split("\n").collect();
+            let texts: Vec<&str> = text.split('\n').collect();
             let mut audios = vec![];
             for (i, t) in texts.iter().enumerate() {
                 if t.is_empty() {
@@ -252,7 +252,7 @@ impl TTSModelHolder {
                 options.length_scale,
             )?
         };
-        Ok(Self::array_to_vec(audio_array)?)
+        Self::array_to_vec(audio_array)
     }
 
     fn array_to_vec(audio_array: Array3<f32>) -> Result<Vec<u8>> {
@@ -296,7 +296,7 @@ impl TTSModelHolder {
             sdp_ratio,
             length_scale,
         )?;
-        Ok(Self::array_to_vec(audio_array)?)
+        Self::array_to_vec(audio_array)
     }
 }
 
