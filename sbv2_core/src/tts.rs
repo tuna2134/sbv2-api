@@ -230,9 +230,9 @@ impl TTSModelHolder {
                     options.sdp_ratio,
                     options.length_scale,
                 )?;
-                audios.push(audio);
+                audios.push(audio.clone());
                 if i != texts.len() - 1 {
-                    audios.push(Array3::zeros((1, 22050, 1)));
+                    audios.push(Array3::zeros((1, 1, 22050)));
                 }
             }
             concatenate(
@@ -252,7 +252,6 @@ impl TTSModelHolder {
                 options.length_scale,
             )?
         };
-        println!("audio_array: {:?}", audio_array);
         Self::array_to_vec(audio_array)
     }
 
