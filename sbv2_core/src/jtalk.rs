@@ -54,10 +54,10 @@ impl JTalk {
         Ok(Self { jpreprocess })
     }
 
-    pub fn g2p(&self, text: &str) -> Result<(Vec<String>, Vec<i32>, Vec<i32>)> {
+    pub fn process_text(&self, text: &str) -> Result<JTalkProcess> {
         let parsed = self.jpreprocess.run_frontend(text)?;
         let jtalk_process = JTalkProcess::new(Arc::clone(&self.jpreprocess), parsed);
-        jtalk_process.g2p()
+        Ok(jtalk_process)
     }
 }
 
@@ -69,7 +69,7 @@ static MORA_PATTERN: Lazy<Vec<String>> = Lazy::new(|| {
 });
 static LONG_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\w)(ー*)").unwrap());
 
-struct JTalkProcess {
+pub struct JTalkProcess {
     jpreprocess: Arc<JPreprocessType>,
     parsed: Vec<String>,
 }
@@ -268,7 +268,7 @@ impl JTalkProcess {
         Ok(data)
     }
 
-    fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
+    pub fn text_to_seq_kata(&self) -> Result<(Vec<String>, Vec<String>)> {
         let mut seq_kata = vec![];
         let mut seq_text = vec![];
 

@@ -1,6 +1,7 @@
 use crate::error::{Error, Result};
 use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
-use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
+use hound::{SampleFormat, WavSpec, WavWriter};
+use ndarray::{concatenate, s, Array, Array1, Array2, Array3, Axis};
 use ort::Session;
 use std::io::{Cursor, Read};
 use tar::Archive;
@@ -124,7 +125,8 @@ impl TTSModelHolder {
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
         let normalized_text = norm::normalize_text(text);
 
-        let (phones, tones, mut word2ph) = self.jtalk.g2p(&normalized_text)?;
+        let process = self.jtalk.process_text(&normalized_text)?;
+        let (phones, tones, mut word2ph) = process.g2p()?;
         let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
 
         let phones = utils::intersperse(&phones, 0);
@@ -134,12 +136,17 @@ impl TTSModelHolder {
             *item *= 2;
         }
         word2ph[0] += 1;
-        let (token_ids, attention_masks) = tokenizer::tokenize(&normalized_text, &self.tokenizer)?;
+
+        let text = {
+            let (seq_text, _) = process.text_to_seq_kata()?;
+            seq_text.join("")
+        };
+        let (token_ids, attention_masks) = tokenizer::tokenize(&text, &self.tokenizer)?;
 
         let bert_content = bert::predict(&self.bert, token_ids, attention_masks)?;
 
         assert!(
-            word2ph.len() == normalized_text.chars().count() + 2,
+            word2ph.len() == text.chars().count() + 2,
             "{} {}",
             word2ph.len(),
             normalized_text.chars().count()
@@ -197,6 +204,76 @@ impl TTSModelHolder {
         style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
     }
 
+    pub fn easy_synthesize<I: Into<TTSIdent> + Copy>(
+        &self,
+        ident: I,
+        text: &str,
+        style_id: i32,
+        options: SynthesizeOptions,
+    ) -> Result<Vec<u8>> {
+        let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
+        let audio_array = if options.split_sentences {
+            let texts: Vec<&str> = text.split('\n').collect();
+            let mut audios = vec![];
+            for (i, t) in texts.iter().enumerate() {
+                if t.is_empty() {
+                    continue;
+                }
+                let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
+                let audio = model::synthesize(
+                    &self.find_model(ident)?.vits2,
+                    bert_ori.to_owned(),
+                    phones,
+                    tones,
+                    lang_ids,
+                    style_vector.clone(),
+                    options.sdp_ratio,
+                    options.length_scale,
+                )?;
+                audios.push(audio);
+                if i != texts.len() - 1 {
+                    audios.push(Array3::zeros((1, 22050, 1)));
+                }
+            }
+            concatenate(
+                Axis(0),
+                &audios.iter().map(|x| x.view()).collect::<Vec<_>>(),
+            )?
+        } else {
+            let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+            model::synthesize(
+                &self.find_model(ident)?.vits2,
+                bert_ori.to_owned(),
+                phones,
+                tones,
+                lang_ids,
+                style_vector,
+                options.sdp_ratio,
+                options.length_scale,
+            )?
+        };
+        Self::array_to_vec(audio_array)
+    }
+
+    fn array_to_vec(audio_array: Array3<f32>) -> Result<Vec<u8>> {
+        let spec = WavSpec {
+            channels: 1,
+            sample_rate: 44100,
+            bits_per_sample: 32,
+            sample_format: SampleFormat::Float,
+        };
+        let mut cursor = Cursor::new(Vec::new());
+        let mut writer = WavWriter::new(&mut cursor, spec)?;
+        for i in 0..audio_array.shape()[0] {
+            let output = audio_array.slice(s![i, 0, ..]).to_vec();
+            for sample in output {
+                writer.write_sample(sample)?;
+            }
+        }
+        writer.finalize()?;
+        Ok(cursor.into_inner())
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn synthesize<I: Into<TTSIdent>>(
         &self,
@@ -209,7 +286,7 @@ impl TTSModelHolder {
         sdp_ratio: f32,
         length_scale: f32,
     ) -> Result<Vec<u8>> {
-        let buffer = model::synthesize(
+        let audio_array = model::synthesize(
             &self.find_model(ident)?.vits2,
             bert_ori.to_owned(),
             phones,
@@ -219,6 +296,24 @@ impl TTSModelHolder {
             sdp_ratio,
             length_scale,
         )?;
-        Ok(buffer)
+        Self::array_to_vec(audio_array)
+    }
+}
+
+pub struct SynthesizeOptions {
+    sdp_ratio: f32,
+    length_scale: f32,
+    style_weight: f32,
+    split_sentences: bool,
+}
+
+impl Default for SynthesizeOptions {
+    fn default() -> Self {
+        SynthesizeOptions {
+            sdp_ratio: 0.0,
+            length_scale: 1.0,
+            style_weight: 1.0,
+            split_sentences: true,
+        }
     }
 }
