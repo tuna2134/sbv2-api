@@ -1841,7 +1841,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_core"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "dotenvy",
