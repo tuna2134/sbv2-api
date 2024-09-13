@@ -236,7 +236,7 @@ impl TTSModelHolder {
                 }
             }
             concatenate(
-                Axis(0),
+                Axis(2),
                 &audios.iter().map(|x| x.view()).collect::<Vec<_>>(),
             )?
         } else {
@@ -252,6 +252,7 @@ impl TTSModelHolder {
                 options.length_scale,
             )?
         };
+        println!("audio_array: {:?}", audio_array);
         Self::array_to_vec(audio_array)
     }
 
