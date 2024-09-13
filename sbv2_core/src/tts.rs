@@ -301,10 +301,10 @@ impl TTSModelHolder {
 }
 
 pub struct SynthesizeOptions {
-    sdp_ratio: f32,
-    length_scale: f32,
-    style_weight: f32,
-    split_sentences: bool,
+    pub sdp_ratio: f32,
+    pub length_scale: f32,
+    pub style_weight: f32,
+    pub split_sentences: bool,
 }
 
 impl Default for SynthesizeOptions {
