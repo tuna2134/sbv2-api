@@ -198,16 +198,59 @@ impl TTSModelHolder {
         style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
     }
 
-    pub fn easy_synthesize<I: Into<TTSIdent>>(
+    pub fn easy_synthesize<I: Into<TTSIdent> + Copy>(
         &self,
         ident: I,
         text: &str,
         style_id: i32,
         options: SynthesizeOptions,
-    ) -> Result<()> {
-        let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+    ) -> Result<Vec<u8>> {
         let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
-        Ok(())
+        let audio_array = if options.split_sentences {
+            let texts: Vec<&str> = text.split("\n").collect();
+            let mut audios = vec![];
+            for (i, t) in texts.iter().enumerate() {
+                if t.is_empty() {
+                    continue;
+                }
+                let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
+                let audio = model::synthesize(
+                    &self.find_model(ident)?.vits2,
+                    bert_ori.to_owned(),
+                    phones,
+                    tones,
+                    lang_ids,
+                    style_vector.clone(),
+                    options.sdp_ratio,
+                    options.length_scale,
+                )?;
+                audios.push(audio);
+                if i != texts.len() - 1 {
+                    // 44100 * 0.5s 無音区間
+                    audios.push(Array3::zeros((1, 22050, 1)));
+                }
+            }
+            concatenate(
+                Axis(0),
+                &audios
+                    .iter()
+                    .map(|x| x.view())
+                    .collect::<Vec<_>>()
+            )?
+        } else {
+            let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+            model::synthesize(
+                &self.find_model(ident)?.vits2,
+                bert_ori.to_owned(),
+                phones,
+                tones,
+                lang_ids,
+                style_vector,
+                options.sdp_ratio,
+                options.length_scale,
+            )?
+        };
+        Ok(Self::array_to_vec(audio_array)?)
     }
 
     fn array_to_vec(audio_array: Array3<f32>) -> Result<Vec<u8>> {
@@ -241,7 +284,7 @@ impl TTSModelHolder {
         sdp_ratio: f32,
         length_scale: f32,
     ) -> Result<Vec<u8>> {
-        let buffer = model::synthesize(
+        let audio_array = model::synthesize(
             &self.find_model(ident)?.vits2,
             bert_ori.to_owned(),
             phones,
@@ -251,7 +294,7 @@ impl TTSModelHolder {
             sdp_ratio,
             length_scale,
         )?;
-        Ok(buffer)
+        Ok(Self::array_to_vec(audio_array)?)
     }
 }
 
