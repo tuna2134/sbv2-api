@@ -230,13 +230,13 @@ impl TTSModelHolder {
                     options.sdp_ratio,
                     options.length_scale,
                 )?;
-                audios.push(audio);
+                audios.push(audio.clone());
                 if i != texts.len() - 1 {
-                    audios.push(Array3::zeros((1, 22050, 1)));
+                    audios.push(Array3::zeros((1, 1, 22050)));
                 }
             }
             concatenate(
-                Axis(0),
+                Axis(2),
                 &audios.iter().map(|x| x.view()).collect::<Vec<_>>(),
             )?
         } else {
