@@ -1,6 +1,7 @@
 use crate::error::{Error, Result};
 use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
-use ndarray::{concatenate, s, Array, Array1, Array2, Axis};
+use ndarray::{concatenate, s, Array, Array1, Array2, Array3, Axis};
+use hound::{SampleFormat, WavSpec, WavWriter};
 use ort::Session;
 use std::io::{Cursor, Read};
 use tar::Archive;
@@ -197,6 +198,37 @@ impl TTSModelHolder {
         style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
     }
 
+    pub fn easy_synthesize<I: Into<TTSIdent>>(
+        &self,
+        ident: I,
+        text: &str,
+        style_id: i32,
+        options: SynthesizeOptions,
+    ) -> Result<()> {
+        let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+        let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
+        Ok(())
+    }
+
+    fn array_to_vec(audio_array: Array3<f32>) -> Result<Vec<u8>> {
+        let spec = WavSpec {
+            channels: 1,
+            sample_rate: 44100,
+            bits_per_sample: 32,
+            sample_format: SampleFormat::Float,
+        };
+        let mut cursor = Cursor::new(Vec::new());
+        let mut writer = WavWriter::new(&mut cursor, spec)?;
+        for i in 0..audio_array.shape()[0] {
+            let output = audio_array.slice(s![i, 0, ..]).to_vec();
+            for sample in output {
+                writer.write_sample(sample)?;
+            }
+        }
+        writer.finalize()?;
+        Ok(cursor.into_inner())
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn synthesize<I: Into<TTSIdent>>(
         &self,
@@ -206,7 +238,8 @@ impl TTSModelHolder {
         tones: Array1<i64>,
         lang_ids: Array1<i64>,
         style_vector: Array1<f32>,
-        options: SynthesizeOptions,
+        sdp_ratio: f32,
+        length_scale: f32,
     ) -> Result<Vec<u8>> {
         let buffer = model::synthesize(
             &self.find_model(ident)?.vits2,
@@ -215,8 +248,8 @@ impl TTSModelHolder {
             tones,
             lang_ids,
             style_vector,
-            options.sdp_ratio,
-            options.length_scale,
+            sdp_ratio,
+            length_scale,
         )?;
         Ok(buffer)
     }
@@ -225,6 +258,7 @@ impl TTSModelHolder {
 pub struct SynthesizeOptions {
     sdp_ratio: f32,
     length_scale: f32,
+    style_weight: f32,
     split_sentences: bool,
 }
 
@@ -233,6 +267,7 @@ impl Default for SynthesizeOptions {
         SynthesizeOptions {
             sdp_ratio: 0.0,
             length_scale: 1.0,
+            style_weight: 1.0,
             split_sentences: true,
         }
     }

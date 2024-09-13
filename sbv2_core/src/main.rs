@@ -24,7 +24,8 @@ fn main() -> anyhow::Result<()> {
         tones.clone(),
         lang_ids.clone(),
         style_vector.clone(),
-        tts::SynthesizeOptions::default(),
+        0.0,
+        0.5,
     )?;
     std::fs::write("output.wav", data)?;
     let now = Instant::now();
@@ -44,7 +45,8 @@ fn main() -> anyhow::Result<()> {
             tones.clone(),
             lang_ids.clone(),
             style_vector.clone(),
-            tts::SynthesizeOptions::default(),
+            0.0,
+            1.0,
         )?;
     }
     println!(
