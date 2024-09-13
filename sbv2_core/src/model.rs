@@ -83,7 +83,11 @@ pub fn synthesize(
         .to_owned();
 
     Ok(Array3::from_shape_vec(
-        (audio_array.shape()[0], audio_array.shape()[1], audio_array.shape()[2]),
+        (
+            audio_array.shape()[0],
+            audio_array.shape()[1],
+            audio_array.shape()[2],
+        ),
         audio_array.into_raw_vec_and_offset().0,
     )?)
 }

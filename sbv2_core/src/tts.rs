@@ -1,7 +1,7 @@
 use crate::error::{Error, Result};
 use crate::{bert, jtalk, model, nlp, norm, style, tokenizer, utils};
-use ndarray::{concatenate, s, Array, Array1, Array2, Array3, Axis};
 use hound::{SampleFormat, WavSpec, WavWriter};
+use ndarray::{concatenate, s, Array, Array1, Array2, Array3, Axis};
 use ort::Session;
 use std::io::{Cursor, Read};
 use tar::Archive;
@@ -231,10 +231,7 @@ impl TTSModelHolder {
             }
             concatenate(
                 Axis(0),
-                &audios
-                    .iter()
-                    .map(|x| x.view())
-                    .collect::<Vec<_>>()
+                &audios.iter().map(|x| x.view()).collect::<Vec<_>>(),
             )?
         } else {
             let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
