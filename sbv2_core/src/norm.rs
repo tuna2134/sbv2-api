@@ -120,7 +120,8 @@ pub fn replace_punctuation(mut text: String) -> String {
     for (k, v) in REPLACE_MAP.iter() {
         text = text.replace(k, v);
     }
-    PUNCTUATION_CLEANUP_PATTERN
+    let content = PUNCTUATION_CLEANUP_PATTERN
         .replace_all(&text, "")
-        .to_string()
+        .to_string();
+    content
 }
