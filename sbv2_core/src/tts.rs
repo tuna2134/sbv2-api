@@ -123,7 +123,8 @@ impl TTSModelHolder {
         &self,
         text: &str,
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
-        let normalized_text = norm::normalize_text(text);
+        let text = self.jtalk.num2word(text)?;
+        let normalized_text = norm::normalize_text(&text);
 
         let process = self.jtalk.process_text(&normalized_text)?;
         let (phones, tones, mut word2ph) = process.g2p()?;

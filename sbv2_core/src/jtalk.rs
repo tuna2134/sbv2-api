@@ -54,6 +54,17 @@ impl JTalk {
         Ok(Self { jpreprocess })
     }
 
+    pub fn num2word(&self, text: &str) -> Result<String> {
+        let mut parsed = self.jpreprocess.text_to_njd(text)?;
+        parsed.preprocess();
+        let texts: Vec<String> = parsed
+            .nodes
+            .iter()
+            .map(|x| x.get_string().to_string())
+            .collect();
+        Ok(texts.join(""))
+    }
+
     pub fn process_text(&self, text: &str) -> Result<JTalkProcess> {
         let parsed = self.jpreprocess.run_frontend(text)?;
         let jtalk_process = JTalkProcess::new(Arc::clone(&self.jpreprocess), parsed);
