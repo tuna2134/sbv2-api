@@ -49,18 +49,7 @@ async fn synthesize(
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
     let buffer = {
         let tts_model = state.tts_model.lock().await;
-        let (bert_ori, phones, tones, lang_ids) = tts_model.parse_text(&text)?;
-        let style_vector = tts_model.get_style_vector(&ident, 0, 1.0)?;
-        tts_model.synthesize(
-            ident,
-            bert_ori.to_owned(),
-            phones,
-            tones,
-            lang_ids,
-            style_vector,
-            sdp_ratio,
-            length_scale,
-        )?
+        tts_model.easy_synthesize(&ident, &text, 0, sdp_ratio, length_scale)?
     };
     Ok(([(CONTENT_TYPE, "audio/wav")], buffer))
 }
