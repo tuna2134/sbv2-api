@@ -5,7 +5,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use sbv2_core::tts::{TTSModelHolder, SynthesizeOptions};
+use sbv2_core::tts::{SynthesizeOptions, TTSModelHolder};
 use serde::Deserialize;
 use std::env;
 use std::sync::Arc;
@@ -49,11 +49,16 @@ async fn synthesize(
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
     let buffer = {
         let tts_model = state.tts_model.lock().await;
-        tts_model.easy_synthesize(&ident, &text, 0, SynthesizeOptions {
-            sdp_ratio,
-            length_scale,
-            ..Default::default()
-        })?
+        tts_model.easy_synthesize(
+            &ident,
+            &text,
+            0,
+            SynthesizeOptions {
+                sdp_ratio,
+                length_scale,
+                ..Default::default()
+            },
+        )?
     };
     Ok(([(CONTENT_TYPE, "audio/wav")], buffer))
 }
