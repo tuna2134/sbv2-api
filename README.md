@@ -57,6 +57,22 @@ docker run -it --rm -p 3000:3000 --name sbv2 \
 ghcr.io/tuna2134/sbv2-api:cpu
 ```
 
+<details>
+<summary>Apple Silicon搭載のMac(M1以降)の場合</summary>
+docker上で動作させる場合、.envのADDRをlocalhostから0.0.0.0に変更してください。
+
+```yaml
+ADDR=0.0.0.0:3000
+```
+
+CPUの場合は
+```bash
+docker run --platform linux/amd64 -it --rm -p 3000:3000 --name sbv2 \
+-v ./models:/work/models --env-file .env \
+ghcr.io/tuna2134/sbv2-api:cpu
+```
+</details>
+
 CUDAの場合は
 ```sh
 docker run -it --rm -p 3000:3000 --name sbv2 \
