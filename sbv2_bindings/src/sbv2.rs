@@ -141,4 +141,8 @@ impl TTSModel {
         )?;
         Ok(PyBytes::new_bound(py, &data))
     }
+
+    fn unload(&mut self, ident: String) -> bool {
+        self.model.unload(ident)
+    }
 }
