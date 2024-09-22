@@ -129,16 +129,15 @@ impl TTSModel {
         sdp_ratio: f32,
         length_scale: f32,
     ) -> anyhow::Result<Bound<PyBytes>> {
-        let (bert_ori, phones, tones, lang_ids) = self.model.parse_text(&text)?;
-        let data = self.model.synthesize(
+        let data = self.model.easy_synthesize(
             ident,
-            bert_ori,
-            phones,
-            tones,
-            lang_ids,
+            &text,
             style_vector.get(),
-            sdp_ratio,
-            length_scale,
+            SynthesizeOptions {
+                sdp_ratio,
+                length_scale,
+                ..Default::default()
+            },
         )?;
         Ok(PyBytes::new_bound(py, &data))
     }
