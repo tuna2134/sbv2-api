@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use sbv2_core::tts::TTSModelHolder;
+use sbv2_core::tts::{TTSModelHolder, SynthesizeOptions};
 
 use crate::style::StyleVector;
 
@@ -130,7 +130,7 @@ impl TTSModel {
         length_scale: f32,
     ) -> anyhow::Result<Bound<PyBytes>> {
         let data = self.model.easy_synthesize(
-            ident,
+            ident.as_str(),
             &text,
             style_id,
             SynthesizeOptions {
