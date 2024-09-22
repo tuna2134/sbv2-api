@@ -126,11 +126,13 @@ torch.onnx.export(
     f"../models/model_{out_name}.onnx",
     verbose=True,
     dynamic_axes={
-        "x_tst": {1: "batch_size"},
+        "x_tst": {0: "batch_size", 1: "x_tst_max_length"},
         "x_tst_lengths": {0: "batch_size"},
-        "tones": {1: "batch_size"},
-        "language": {1: "batch_size"},
-        "bert": {2: "batch_size"},
+        "sid": {0: "batch_size"},
+        "tones": {0: "batch_size", 1: "x_tst_max_length"},
+        "language": {0: "batch_size", 1: "x_tst_max_length"},
+        "bert": {0: "batch_size", 2: "x_tst_max_length"},
+        "style_vec": {0: "batch_size"},
     },
     input_names=[
         "x_tst",
