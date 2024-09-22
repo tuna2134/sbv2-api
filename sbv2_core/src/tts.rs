@@ -33,6 +33,7 @@ pub struct TTSModel {
     ident: TTSIdent,
 }
 
+/// High-level Style-Bert-VITS2's API
 pub struct TTSModelHolder {
     tokenizer: Tokenizer,
     bert: Session,
@@ -41,6 +42,13 @@ pub struct TTSModelHolder {
 }
 
 impl TTSModelHolder {
+    /// Initialize a new TTSModelHolder
+    ///
+    /// # Examples
+    ///
+    /// ```rs
+    /// let mut tts_holder = TTSModelHolder::new(std::fs::read("deberta.onnx")?, std::fs::read("tokenizer.json")?)?;
+    /// ```
     pub fn new<P: AsRef<[u8]>>(bert_model_bytes: P, tokenizer_bytes: P) -> Result<Self> {
         let bert = model::load_model(bert_model_bytes, true)?;
         let jtalk = jtalk::JTalk::new()?;
@@ -53,10 +61,18 @@ impl TTSModelHolder {
         })
     }
 
+    /// Return a list of model names
     pub fn models(&self) -> Vec<String> {
         self.models.iter().map(|m| m.ident.to_string()).collect()
     }
 
+    /// Load a .sbv2 file binary
+    ///
+    /// # Examples
+    ///
+    /// ```rs
+    /// tts_holder.load_sbv2file("tsukuyomi", std::fs::read("tsukuyomi.sbv2")?)?;
+    /// ```
     pub fn load_sbv2file<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -86,6 +102,13 @@ impl TTSModelHolder {
         Ok(())
     }
 
+    /// Load a style vector and onnx model binary
+    ///
+    /// # Examples
+    ///
+    /// ```rs
+    /// tts_holder.load("tsukuyomi", std::fs::read("style_vectors.json")?, std::fs::read("model.onnx")?)?;
+    /// ```
     pub fn load<I: Into<TTSIdent>, P: AsRef<[u8]>>(
         &mut self,
         ident: I,
@@ -103,6 +126,7 @@ impl TTSModelHolder {
         Ok(())
     }
 
+    /// Unload a model
     pub fn unload<I: Into<TTSIdent>>(&mut self, ident: I) -> bool {
         let ident = ident.into();
         if let Some((i, _)) = self
@@ -118,6 +142,10 @@ impl TTSModelHolder {
         }
     }
 
+    /// Parse text and return the input for synthesize
+    ///
+    /// # Note
+    /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     #[allow(clippy::type_complexity)]
     pub fn parse_text(
         &self,
@@ -196,6 +224,10 @@ impl TTSModelHolder {
             .ok_or(Error::ModelNotFoundError(ident.to_string()))
     }
 
+    /// Get style vector by style id and weight
+    ///
+    /// # Note
+    /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     pub fn get_style_vector<I: Into<TTSIdent>>(
         &self,
         ident: I,
@@ -205,6 +237,13 @@ impl TTSModelHolder {
         style::get_style_vector(&self.find_model(ident)?.style_vectors, style_id, weight)
     }
 
+    /// Synthesize text to audio
+    ///
+    /// # Examples
+    ///
+    /// ```rs
+    /// let audio = tts_holder.easy_synthesize("tsukuyomi", "こんにちは", 0, SynthesizeOptions::default())?;
+    /// ```
     pub fn easy_synthesize<I: Into<TTSIdent> + Copy>(
         &self,
         ident: I,
@@ -275,6 +314,10 @@ impl TTSModelHolder {
         Ok(cursor.into_inner())
     }
 
+    /// Synthesize text to audio
+    ///
+    /// # Note
+    /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     #[allow(clippy::too_many_arguments)]
     pub fn synthesize<I: Into<TTSIdent>>(
         &self,
@@ -301,6 +344,13 @@ impl TTSModelHolder {
     }
 }
 
+/// Synthesize options
+///
+/// # Fields
+/// - `sdp_ratio`: SDP ratio
+/// - `length_scale`: Length scale
+/// - `style_weight`: Style weight
+/// - `split_sentences`: Split sentences
 pub struct SynthesizeOptions {
     pub sdp_ratio: f32,
     pub length_scale: f32,
