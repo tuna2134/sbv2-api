@@ -27,6 +27,7 @@ JP-Extra しか対応していません。(基本的に対応する予定もあ�
 - [x] GPU 対応(DirectML)
 - [x] GPU 対応(CoreML)
 - [ ] WASM 変換(依存ライブラリの関係により現在は不可)
+- [ ] arm64のdockerサポート
 
 ## 構造説明
 
