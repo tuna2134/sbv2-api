@@ -109,8 +109,8 @@ impl TTSModel {
     ///     テキスト
     /// ident : str
     ///     識別子
-    /// style_vector : StyleVector
-    ///     スタイルベクトル
+    /// style_id : int
+    ///     スタイルID
     /// sdp_ratio : float
     ///     SDP比率
     /// length_scale : float
@@ -125,14 +125,14 @@ impl TTSModel {
         py: Python<'p>,
         text: String,
         ident: String,
-        style_vector: StyleVector,
+        style_id: i32,
         sdp_ratio: f32,
         length_scale: f32,
     ) -> anyhow::Result<Bound<PyBytes>> {
         let data = self.model.easy_synthesize(
             ident,
             &text,
-            style_vector.get(),
+            style_id,
             SynthesizeOptions {
                 sdp_ratio,
                 length_scale,
