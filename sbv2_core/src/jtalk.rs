@@ -19,21 +19,6 @@ fn initialize_jtalk() -> Result<JPreprocessType> {
     Ok(jpreprocess)
 }
 
-static JTALK_G2P_G_A1_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"/A:([0-9\-]+)\+").unwrap());
-static JTALK_G2P_G_A2_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+(\d+)\+").unwrap());
-static JTALK_G2P_G_A3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+(\d+)/").unwrap());
-static JTALK_G2P_G_E3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"!(\d+)_").unwrap());
-static JTALK_G2P_G_F1_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"/F:(\d+)_").unwrap());
-static JTALK_G2P_G_P3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\-(.*?)\+").unwrap());
-
-fn numeric_feature_by_regex(regex: &Regex, text: &str) -> i32 {
-    if let Some(mat) = regex.captures(text) {
-        mat[1].parse::<i32>().unwrap()
-    } else {
-        -50
-    }
-}
-
 macro_rules! hash_set {
     ($($elem:expr),* $(,)?) => {{
         let mut set = HashSet::new();
