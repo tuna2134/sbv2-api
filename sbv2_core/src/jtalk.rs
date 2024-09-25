@@ -351,7 +351,7 @@ impl JTalkProcess {
 
         let mut phones: Vec<String> = Vec::new();
         for (i, label) in labels.iter().enumerate() {
-            let mut p3 = label.phoneme.c.unwrap();
+            let mut p3 = label.phoneme.c.clone().unwrap();
             if "AIUEO".contains(&p3) {
                 // 文字をlowerする
                 p3 = p3.to_lowercase();
@@ -361,10 +361,10 @@ impl JTalkProcess {
                 if i == 0 {
                     phones.push("^".to_string());
                 } else if i == labels.len() - 1 {
-                    let e3 = numeric_feature_by_regex(&JTALK_G2P_G_E3_PATTERN, &label.to_string());
-                    if e3 == 0 {
+                    let e3 = label.accent_phrase_prev.clone().unwrap().is_interrogative;
+                    if e3 {
                         phones.push("$".to_string());
-                    } else if e3 == 1 {
+                    } else {
                         phones.push("?".to_string());
                     }
                 }
