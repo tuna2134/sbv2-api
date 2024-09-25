@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use sbv2_core::tts::{TTSModelHolder, SynthesizeOptions};
+use sbv2_core::tts::{SynthesizeOptions, TTSModelHolder};
 
 use crate::style::StyleVector;
 

@@ -19,21 +19,6 @@ fn initialize_jtalk() -> Result<JPreprocessType> {
     Ok(jpreprocess)
 }
 
-static JTALK_G2P_G_A1_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"/A:([0-9\-]+)\+").unwrap());
-static JTALK_G2P_G_A2_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+(\d+)\+").unwrap());
-static JTALK_G2P_G_A3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+(\d+)/").unwrap());
-static JTALK_G2P_G_E3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"!(\d+)_").unwrap());
-static JTALK_G2P_G_F1_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"/F:(\d+)_").unwrap());
-static JTALK_G2P_G_P3_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\-(.*?)\+").unwrap());
-
-fn numeric_feature_by_regex(regex: &Regex, text: &str) -> i32 {
-    if let Some(mat) = regex.captures(text) {
-        mat[1].parse::<i32>().unwrap()
-    } else {
-        -50
-    }
-}
-
 macro_rules! hash_set {
     ($($elem:expr),* $(,)?) => {{
         let mut set = HashSet::new();
@@ -351,7 +336,7 @@ impl JTalkProcess {
 
         let mut phones: Vec<String> = Vec::new();
         for (i, label) in labels.iter().enumerate() {
-            let mut p3 = label.phoneme.c;
+            let mut p3 = label.phoneme.c.clone().unwrap();
             if "AIUEO".contains(&p3) {
                 // 文字をlowerする
                 p3 = p3.to_lowercase();
@@ -361,10 +346,10 @@ impl JTalkProcess {
                 if i == 0 {
                     phones.push("^".to_string());
                 } else if i == labels.len() - 1 {
-                    let e3 = numeric_feature_by_regex(&JTALK_G2P_G_E3_PATTERN, &label.to_string());
-                    if e3 == 0 {
+                    let e3 = label.accent_phrase_prev.clone().unwrap().is_interrogative;
+                    if e3 {
                         phones.push("$".to_string());
-                    } else if e3 == 1 {
+                    } else {
                         phones.push("?".to_string());
                     }
                 }
@@ -376,14 +361,33 @@ impl JTalkProcess {
                 phones.push(p3.clone());
             }
 
-            let a1 = numeric_feature_by_regex(&JTALK_G2P_G_A1_PATTERN, &label.to_string());
-            let a2 = numeric_feature_by_regex(&JTALK_G2P_G_A2_PATTERN, &label.to_string());
-            let a3 = numeric_feature_by_regex(&JTALK_G2P_G_A3_PATTERN, &label.to_string());
+            let a1 = if let Some(mora) = &label.mora {
+                mora.relative_accent_position as i32
+            } else {
+                -50
+            };
+            let a2 = if let Some(mora) = &label.mora {
+                mora.position_forward as i32
+            } else {
+                -50
+            };
+            let a3 = if let Some(mora) = &label.mora {
+                mora.position_backward as i32
+            } else {
+                -50
+            };
 
-            let f1 = numeric_feature_by_regex(&JTALK_G2P_G_F1_PATTERN, &label.to_string());
+            let f1 = if let Some(accent_phrase) = &label.accent_phrase_curr {
+                accent_phrase.mora_count as i32
+            } else {
+                -50
+            };
 
-            let a2_next =
-                numeric_feature_by_regex(&JTALK_G2P_G_A2_PATTERN, &labels[i + 1].to_string());
+            let a2_next = if let Some(mora) = &labels[i + 1].mora {
+                mora.position_forward as i32
+            } else {
+                -50
+            };
 
             if a3 == 1 && a2_next == 1 && "aeiouAEIOUNcl".contains(&p3) {
                 phones.push("#".to_string());
