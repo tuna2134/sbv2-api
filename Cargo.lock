@@ -1819,7 +1819,7 @@ checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
 name = "sbv2_api"
-version = "0.1.0"
+version = "0.2.0-alpha"
 dependencies = [
  "anyhow",
  "axum",
@@ -1843,7 +1843,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_core"
-version = "0.1.4"
+version = "0.2.0-alpha"
 dependencies = [
  "anyhow",
  "dotenvy",

@@ -351,11 +351,7 @@ impl JTalkProcess {
 
         let mut phones: Vec<String> = Vec::new();
         for (i, label) in labels.iter().enumerate() {
-            let mut p3 = {
-                let label_text = label.to_string();
-                let mattched = JTALK_G2P_G_P3_PATTERN.captures(&label_text).unwrap();
-                mattched[1].to_string()
-            };
+            let mut p3 = label.phoneme.c;
             if "AIUEO".contains(&p3) {
                 // 文字をlowerする
                 p3 = p3.to_lowercase();

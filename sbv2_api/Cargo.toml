@@ -1,6 +1,6 @@
 [package]
 name = "sbv2_api"
-version = "0.1.0"
+version = "0.2.0-alpha"
 edition = "2021"
 
 [dependencies]
@@ -9,7 +9,7 @@ axum = "0.7.5"
 dotenvy.workspace = true
 env_logger.workspace = true
 log = "0.4.22"
-sbv2_core = { version = "0.1.3", path = "../sbv2_core" }
+sbv2_core = { version = "0.2.0-alpha", path = "../sbv2_core" }
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
 
