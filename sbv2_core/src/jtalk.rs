@@ -376,14 +376,33 @@ impl JTalkProcess {
                 phones.push(p3.clone());
             }
 
-            let a1 = numeric_feature_by_regex(&JTALK_G2P_G_A1_PATTERN, &label.to_string());
-            let a2 = numeric_feature_by_regex(&JTALK_G2P_G_A2_PATTERN, &label.to_string());
-            let a3 = numeric_feature_by_regex(&JTALK_G2P_G_A3_PATTERN, &label.to_string());
+            let a1 = if let Some(mora) = &label.mora {
+                mora.relative_accent_position as i32
+            } else {
+                -50
+            };
+            let a2 = if let Some(mora) = &label.mora {
+                mora.position_forward as i32
+            } else {
+                -50
+            };
+            let a3 = if let Some(mora) = &label.mora {
+                mora.position_backward as i32
+            } else {
+                -50
+            };
 
-            let f1 = numeric_feature_by_regex(&JTALK_G2P_G_F1_PATTERN, &label.to_string());
+            let f1 = if let Some(accent_phrase) = &label.accent_phrase_curr {
+                accent_phrase.mora_count as i32
+            } else {
+                -50
+            };
 
-            let a2_next =
-                numeric_feature_by_regex(&JTALK_G2P_G_A2_PATTERN, &labels[i + 1].to_string());
+            let a2_next = if let Some(mora) = &labels[i + 1].mora {
+                mora.position_forward as i32
+            } else {
+                -50
+            };
 
             if a3 == 1 && a2_next == 1 && "aeiouAEIOUNcl".contains(&p3) {
                 phones.push("#".to_string());
