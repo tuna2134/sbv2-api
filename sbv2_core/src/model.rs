@@ -1,8 +1,12 @@
 use crate::error::Result;
 use ndarray::{array, Array1, Array2, Array3, Axis};
+#[cfg(not(target = "wasm32"))]
 use ort::{GraphOptimizationLevel, Session};
+#[cfg(target = "wasm32")]
+use wonnx;
 
 #[allow(clippy::vec_init_then_push, unused_variables)]
+#[cfg(not(target = "wasm32"))]
 pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> {
     let mut exp = Vec::new();
     #[cfg(feature = "tensorrt")]
@@ -45,6 +49,12 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> 
         .with_parallel_execution(true)?
         .with_inter_threads(num_cpus::get_physical())?
         .commit_from_memory(model_file.as_ref())?)
+}
+
+#[cfg(target = "wasm32")]
+pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<wonnx::Session> {
+    let session = wonnx::Session::from_bytes(model_file.as_ref())?;
+    Ok(session)
 }
 
 #[allow(clippy::too_many_arguments)]
