@@ -52,7 +52,7 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> 
 }
 
 #[cfg(target = "wasm32")]
-pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<wonnx::Session> {
+pub async fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<wonnx::Session> {
     let session = wonnx::Session::from_bytes(model_file.as_ref())?;
     Ok(session)
 }
