@@ -11,10 +11,36 @@ use std::env;
 use std::sync::Arc;
 use tokio::fs;
 use tokio::sync::Mutex;
+use utoipa::{OpenApi, ToSchema};
 
 mod error;
 use crate::error::AppResult;
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(openapi, models, synthesize),
+    components(schemas(SynthesizeRequest))
+)]
+struct ApiDoc;
+
+#[utoipa::path(
+    get,
+    path = "/docs/openapi.json",
+    responses(
+        (status = 200, description = "JSON file", body = ())
+    )
+)]
+async fn openapi() -> Json<utoipa::openapi::OpenApi> {
+    Json(ApiDoc::openapi())
+}
+
+#[utoipa::path(
+    get,
+    path = "/models",
+    responses(
+        (status = 200, description = "Return model list", body = Vec<String>),
+    )
+)]
 async fn models(State(state): State<AppState>) -> AppResult<impl IntoResponse> {
     Ok(Json(state.tts_model.lock().await.models()))
 }
@@ -27,7 +53,7 @@ fn length_default() -> f32 {
     1.0
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 struct SynthesizeRequest {
     text: String,
     ident: String,
@@ -37,6 +63,14 @@ struct SynthesizeRequest {
     length_scale: f32,
 }
 
+#[utoipa::path(
+    post,
+    path = "/synthesize",
+    request_body = SynthesizeRequest,
+    responses(
+        (status = 200, description = "Return audio/wav", body = Vec<u8>)
+    )
+)]
 async fn synthesize(
     State(state): State<AppState>,
     Json(SynthesizeRequest {
