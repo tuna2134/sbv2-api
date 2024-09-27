@@ -18,10 +18,7 @@ mod error;
 use crate::error::AppResult;
 
 #[derive(OpenApi)]
-#[openapi(
-    paths(models, synthesize),
-    components(schemas(SynthesizeRequest))
-)]
+#[openapi(paths(models, synthesize), components(schemas(SynthesizeRequest)))]
 struct ApiDoc;
 
 #[utoipa::path(
