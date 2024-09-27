@@ -227,7 +227,9 @@ impl JTalkProcess {
         // if set(text).issubset(set(PUNCTUATIONS)):
         //     return list(text)
         let chars: HashSet<String> = text.chars().map(|x| x.to_string()).collect();
-        if chars.is_subset(&HashSet::from_iter(PUNCTUATIONS.iter().map(|x| x.to_string()))) {
+        if chars.is_subset(&HashSet::from_iter(
+            PUNCTUATIONS.iter().map(|x| x.to_string()),
+        )) {
             return Ok(text.chars().map(|x| x.to_string()).collect());
         }
         if !KATAKANA_PATTERN.is_match(&text) {
