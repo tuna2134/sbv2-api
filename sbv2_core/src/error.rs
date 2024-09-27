@@ -6,6 +6,7 @@ pub enum Error {
     TokenizerError(#[from] tokenizers::Error),
     #[error("JPreprocess error: {0}")]
     JPreprocessError(#[from] jpreprocess::error::JPreprocessError),
+    #[cfg(feature = "std")]
     #[error("ONNX error: {0}")]
     OrtError(#[from] ort::Error),
     #[error("NDArray error: {0}")]
@@ -20,6 +21,8 @@ pub enum Error {
     HoundError(#[from] hound::Error),
     #[error("model not found error")]
     ModelNotFoundError(String),
+    #[error("other")]
+    OtherError(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

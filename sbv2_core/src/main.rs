@@ -1,9 +1,9 @@
+use std::env;
 use std::fs;
 
-use sbv2_core::tts;
-use std::env;
-
-fn main() -> anyhow::Result<()> {
+#[cfg(feature = "std")]
+fn main_inner() -> anyhow::Result<()> {
+    use sbv2_core::tts;
     dotenvy::dotenv_override().ok();
     env_logger::init();
     let text = fs::read_to_string("content.txt")?;
@@ -18,4 +18,14 @@ fn main() -> anyhow::Result<()> {
     fs::write("output.wav", audio)?;
 
     Ok(())
+}
+#[cfg(not(feature = "std"))]
+fn main_inner() -> anyhow::Result<()> {
+    Ok(())
+}
+
+fn main() {
+    if let Err(e) = main_inner() {
+        println!("Error: {e}");
+    }
 }

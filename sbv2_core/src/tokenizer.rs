@@ -1,5 +1,5 @@
 use crate::error::Result;
-use tokenizers::Tokenizer;
+pub use tokenizers::Tokenizer;
 
 pub fn get_tokenizer<P: AsRef<[u8]>>(p: P) -> Result<Tokenizer> {
     let tokenizer = Tokenizer::from_bytes(p)?;
