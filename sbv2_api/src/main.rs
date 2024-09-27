@@ -19,7 +19,7 @@ use crate::error::AppResult;
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(openapi, models, synthesize),
+    paths(models, synthesize),
     components(schemas(SynthesizeRequest))
 )]
 struct ApiDoc;
@@ -164,7 +164,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/synthesize", post(synthesize))
         .route("/models", get(models))
         .with_state(AppState::new().await?)
-        .merge(Scalar::with_url("/docs", ApiDoc::openapi()))
+        .merge(Scalar::with_url("/docs", ApiDoc::openapi()));
     let addr = env::var("ADDR").unwrap_or("0.0.0.0:3000".to_string());
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     log::info!("Listening on {addr}");
