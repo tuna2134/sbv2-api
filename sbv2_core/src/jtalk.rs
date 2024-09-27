@@ -230,6 +230,7 @@ impl JTalkProcess {
         )) {
             return Ok(text.chars().map(|x| x.to_string()).collect());
         }
+        println!("text: {:?}", text);
         if !KATAKANA_PATTERN.is_match(&text) {
             return Err(Error::ValueError(format!(
                 "Input must be katakana only: {}",
