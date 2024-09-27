@@ -12,6 +12,7 @@ use std::sync::Arc;
 use tokio::fs;
 use tokio::sync::Mutex;
 use utoipa::{OpenApi, ToSchema};
+use utoipa_scalar::{Scalar, Servable};
 
 mod error;
 use crate::error::AppResult;
@@ -22,17 +23,6 @@ use crate::error::AppResult;
     components(schemas(SynthesizeRequest))
 )]
 struct ApiDoc;
-
-#[utoipa::path(
-    get,
-    path = "/docs/openapi.json",
-    responses(
-        (status = 200, description = "JSON file", body = ())
-    )
-)]
-async fn openapi() -> Json<utoipa::openapi::OpenApi> {
-    Json(ApiDoc::openapi())
-}
 
 #[utoipa::path(
     get,
@@ -173,7 +163,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/", get(|| async { "Hello, World!" }))
         .route("/synthesize", post(synthesize))
         .route("/models", get(models))
-        .with_state(AppState::new().await?);
+        .with_state(AppState::new().await?)
+        .merge(Scalar::with_url("/docs", ApiDoc::openapi()))
     let addr = env::var("ADDR").unwrap_or("0.0.0.0:3000".to_string());
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     log::info!("Listening on {addr}");
