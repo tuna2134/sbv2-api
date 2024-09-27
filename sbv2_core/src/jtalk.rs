@@ -224,8 +224,6 @@ impl JTalkProcess {
     }
 
     fn kata_to_phoneme_list(mut text: String) -> Result<Vec<String>> {
-        // if set(text).issubset(set(PUNCTUATIONS)):
-        //     return list(text)
         let chars: HashSet<String> = text.chars().map(|x| x.to_string()).collect();
         if chars.is_subset(&HashSet::from_iter(
             PUNCTUATIONS.iter().map(|x| x.to_string()),
