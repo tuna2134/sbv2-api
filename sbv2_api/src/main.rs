@@ -55,7 +55,7 @@ struct SynthesizeRequest {
     path = "/synthesize",
     request_body = SynthesizeRequest,
     responses(
-        (status = 200, description = "Return audio/wav", body = Vec<u8>)
+        (status = 200, description = "Return audio/wav", body = Vec<u8>, content_type = "audio/wav")
     )
 )]
 async fn synthesize(
