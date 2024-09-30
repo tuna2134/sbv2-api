@@ -10,7 +10,87 @@ use tokenizers::Tokenizer;
 /// # Note
 /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
 #[allow(clippy::type_complexity)]
-pub fn parse_text(
+pub async fn parse_text(
+    text: &str,
+    jtalk: &jtalk::JTalk,
+    tokenizer: &Tokenizer,
+    bert_predict: impl FnOnce(
+        Vec<i64>,
+        Vec<i64>,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<ndarray::Array2<f32>>>>,
+    >,
+) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
+    let text = jtalk.num2word(text)?;
+    let normalized_text = norm::normalize_text(&text);
+
+    let process = jtalk.process_text(&normalized_text)?;
+    let (phones, tones, mut word2ph) = process.g2p()?;
+    let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
+
+    let phones = utils::intersperse(&phones, 0);
+    let tones = utils::intersperse(&tones, 0);
+    let lang_ids = utils::intersperse(&lang_ids, 0);
+    for item in &mut word2ph {
+        *item *= 2;
+    }
+    word2ph[0] += 1;
+
+    let text = {
+        let (seq_text, _) = process.text_to_seq_kata()?;
+        seq_text.join("")
+    };
+    let (token_ids, attention_masks) = tokenizer::tokenize(&text, tokenizer)?;
+
+    let bert_content = bert_predict(token_ids, attention_masks).await?;
+
+    assert!(
+        word2ph.len() == text.chars().count() + 2,
+        "{} {}",
+        word2ph.len(),
+        normalized_text.chars().count()
+    );
+
+    let mut phone_level_feature = vec![];
+    for (i, reps) in word2ph.iter().enumerate() {
+        let repeat_feature = {
+            let (reps_rows, reps_cols) = (*reps, 1);
+            let arr_len = bert_content.slice(s![i, ..]).len();
+
+            let mut results: Array2<f32> = Array::zeros((reps_rows as usize, arr_len * reps_cols));
+
+            for j in 0..reps_rows {
+                for k in 0..reps_cols {
+                    let mut view = results.slice_mut(s![j, k * arr_len..(k + 1) * arr_len]);
+                    view.assign(&bert_content.slice(s![i, ..]));
+                }
+            }
+            results
+        };
+        phone_level_feature.push(repeat_feature);
+    }
+    let phone_level_feature = concatenate(
+        Axis(0),
+        &phone_level_feature
+            .iter()
+            .map(|x| x.view())
+            .collect::<Vec<_>>(),
+    )?;
+    let bert_ori = phone_level_feature.t();
+    Ok((
+        bert_ori.to_owned(),
+        phones.into(),
+        tones.into(),
+        lang_ids.into(),
+    ))
+}
+
+/// Parse text and return the input for synthesize
+///
+/// # Note
+/// This function is for low-level usage, use `easy_synthesize` for high-level usage.
+#[allow(clippy::type_complexity)]
+pub fn parse_text_blocking(
     text: &str,
     jtalk: &jtalk::JTalk,
     tokenizer: &Tokenizer,

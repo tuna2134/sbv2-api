@@ -5,3 +5,4 @@ venv/
 .env
 output.wav
 node_modules
+dist/
