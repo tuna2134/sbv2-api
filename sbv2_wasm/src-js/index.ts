@@ -13,9 +13,9 @@ export class ModelHolder {
 	}
 	public static async create(tok: string, deberta: ArrayBufferLike) {
 		return new ModelHolder(
-			await wasm.load_tokenizer(tok),
+			wasm.load_tokenizer(tok),
 			await InferenceSession.create(deberta, {
-				executionProviders: ["webnn", "webgpu", "webgl", "wasm", "cpu"],
+				executionProviders: ["webnn", "webgpu", "wasm", "cpu"],
 				graphOptimizationLevel: "all",
 			}),
 		);
@@ -92,7 +92,7 @@ export class ModelHolder {
 	public async load(name: string, b: Uint8Array) {
 		const [style, vits2_b] = wasm.load_sbv2file(b);
 		const vits2 = await InferenceSession.create(vits2_b as Uint8Array, {
-			executionProviders: ["webnn", "webgpu", "webgl", "wasm", "cpu"],
+			executionProviders: ["webnn", "webgpu", "wasm", "cpu"],
 			graphOptimizationLevel: "all",
 		});
 		this.models.set(name, [vits2, style]);
