@@ -128,7 +128,7 @@ impl TTSModelHolder {
         &self,
         text: &str,
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
-        crate::tts_util::parse_text(
+        crate::tts_util::parse_text_blocking(
             text,
             &self.jtalk,
             &self.tokenizer,

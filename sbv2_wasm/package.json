@@ -1,0 +1,29 @@
+{
+	"name": "sbv2",
+	"version": "0.1.0",
+	"description": "Style Bert VITS2 wasm",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"type": "module",
+	"scripts": {
+		"build": "tsc && esbuild src-js/index.ts --outfile=dist/index.js --minify --format=esm --bundle --external:onnxruntime-web",
+		"format": "biome format --write ."
+	},
+	"keywords": [],
+	"author": "tuna2134",
+	"license": "MIT",
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.2",
+		"@types/node": "^22.7.4",
+		"esbuild": "^0.24.0",
+		"typescript": "^5.6.2"
+	},
+	"dependencies": {
+		"onnxruntime-web": "^1.19.2"
+	},
+	"files": [
+		"dist/*",
+		"package.json",
+		"README.md"
+	]
+}
