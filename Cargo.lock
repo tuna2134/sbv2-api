@@ -89,7 +89,7 @@ checksum = "a27b8a3a6e1a44fa4c8baf1f653e4172e81486d4941f2237e20dc2d0cf4ddff1"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -380,7 +380,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "strsim",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -391,7 +391,7 @@ checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
 dependencies = [
  "darling_core",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -412,7 +412,7 @@ dependencies = [
  "darling",
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -422,7 +422,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4abae7035bf79b9877b779505d8cf3749285b80c43941eda66604841889451dc"
 dependencies = [
  "derive_builder_core",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1347,7 +1347,7 @@ checksum = "a7ce64b975ed4f123575d11afd9491f2e37bbd5813fbfbc0f09ae1fbddea74e0"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1544,7 +1544,7 @@ dependencies = [
  "phf_shared",
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1573,7 +1573,7 @@ checksum = "2f38a4412a78282e09a2cf38d195ea5420d15ba0602cb375210efbc877243965"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1616,30 +1616,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77957b295656769bb8ad2b6a6b09d897d94f05c41b069aede1fcdaa675eaea04"
 dependencies = [
  "zerocopy",
-]
-
-[[package]]
-name = "proc-macro-error"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
-dependencies = [
- "proc-macro-error-attr",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
- "version_check",
-]
-
-[[package]]
-name = "proc-macro-error-attr"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
-dependencies = [
- "proc-macro2",
- "quote",
- "version_check",
 ]
 
 [[package]]
@@ -1699,7 +1675,7 @@ dependencies = [
  "proc-macro2",
  "pyo3-macros-backend",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1712,7 +1688,7 @@ dependencies = [
  "proc-macro2",
  "pyo3-build-config",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -1919,7 +1895,7 @@ dependencies = [
  "sbv2_core",
  "serde",
  "tokio",
- "utoipa 4.2.3",
+ "utoipa",
  "utoipa-scalar",
 ]
 
@@ -1990,7 +1966,7 @@ checksum = "243902eda00fad750862fc144cea25caca5e20d615af0a81bee94ca738f1df1f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -2129,7 +2105,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustversion",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -2137,16 +2113,6 @@ name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
-
-[[package]]
-name = "syn"
-version = "1.0.109"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "unicode-ident",
-]
 
 [[package]]
 name = "syn"
@@ -2205,7 +2171,7 @@ checksum = "08904e7672f5eb876eaaf87e0ce17857500934f4981c4a0ab2b4aa98baac7fc3"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -2282,7 +2248,7 @@ checksum = "693d596312e88961bc67d7f1f97af8a70227d9f90c31bba5806eec004978d752"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
@@ -2449,18 +2415,6 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "utoipa"
-version = "4.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5afb1a60e207dca502682537fefcfd9921e71d0b83e9576060f09abc6efab23"
-dependencies = [
- "indexmap",
- "serde",
- "serde_json",
- "utoipa-gen 4.3.0",
-]
-
-[[package]]
-name = "utoipa"
 version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e2b34fc58a72021914a5745832024b2baa638fe771df5a35f3d1b69266bd92c"
@@ -2468,20 +2422,7 @@ dependencies = [
  "indexmap",
  "serde",
  "serde_json",
- "utoipa-gen 5.0.0",
-]
-
-[[package]]
-name = "utoipa-gen"
-version = "4.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bf0e16c02bc4bf5322ab65f10ab1149bdbcaa782cba66dc7057370a3f8190be"
-dependencies = [
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "regex",
- "syn 2.0.77",
+ "utoipa-gen",
 ]
 
 [[package]]
@@ -2492,7 +2433,8 @@ checksum = "866f11b33be38a747542f435578a164674b8922d958cc065d7f19319c19d4784"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "regex",
+ "syn",
 ]
 
 [[package]]
@@ -2504,7 +2446,7 @@ dependencies = [
  "axum",
  "serde",
  "serde_json",
- "utoipa 5.0.0",
+ "utoipa",
 ]
 
 [[package]]
@@ -2541,7 +2483,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
  "wasm-bindgen-shared",
 ]
 
@@ -2575,7 +2517,7 @@ checksum = "26c6ab57572f7a24a4985830b120de1594465e5d500f24afe89e16b4e833ef68"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -2744,7 +2686,7 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.77",
+ "syn",
 ]
 
 [[package]]
