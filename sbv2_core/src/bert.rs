@@ -1,5 +1,5 @@
 use crate::error::Result;
-use ndarray::{Array2, Ix3};
+use ndarray::{Array2, Ix2};
 use ort::Session;
 
 pub fn predict(
@@ -16,7 +16,7 @@ pub fn predict(
 
     let output = outputs["output"]
         .try_extract_tensor::<f32>()?
-        .into_dimensionality::<Ix3>()?
+        .into_dimensionality::<Ix2>()?
         .to_owned();
 
     Ok(output)
