@@ -1,5 +1,5 @@
 use crate::error::Result;
-use ndarray::Array2;
+use ndarray::{Array2, Ix2};
 use ort::Session;
 
 pub fn predict(
@@ -14,10 +14,10 @@ pub fn predict(
         }?
     )?;
 
-    let output = outputs.get("output").unwrap();
+    let output = outputs["output"]
+        .try_extract_tensor::<f32>()?
+        .into_dimensionality::<Ix2>()?
+        .to_owned();
 
-    let content = output.try_extract_tensor::<f32>()?.to_owned();
-    let (data, _) = content.clone().into_raw_vec_and_offset();
-
-    Ok(Array2::from_shape_vec((content.shape()[0], content.shape()[1]), data).unwrap())
+    Ok(output)
 }

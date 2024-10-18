@@ -1901,7 +1901,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_bindings"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 dependencies = [
  "anyhow",
  "ndarray",
@@ -1911,7 +1911,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_core"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 dependencies = [
  "anyhow",
  "dotenvy",
