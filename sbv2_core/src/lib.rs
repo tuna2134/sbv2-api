@@ -14,3 +14,6 @@ pub mod tokenizer;
 pub mod tts;
 pub mod tts_util;
 pub mod utils;
+
+#[cfg(feature = "mecab")]
+pub mod mecab;
