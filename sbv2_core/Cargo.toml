@@ -17,7 +17,7 @@ jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
 ndarray.workspace = true
 num_cpus = "1.16.0"
 once_cell.workspace = true
-ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.6", optional = true }
+ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.8", optional = true }
 regex = "1.10.6"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
