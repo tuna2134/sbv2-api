@@ -10,7 +10,7 @@ importers:
     dependencies:
       onnxruntime-web:
         specifier: ^1.19.2
-        version: 1.19.2
+        version: 1.20.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.2
@@ -271,11 +271,11 @@ packages:
   long@5.2.3:
     resolution: {integrity: sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==}
 
-  onnxruntime-common@1.19.2:
-    resolution: {integrity: sha512-a4R7wYEVFbZBlp0BfhpbFWqe4opCor3KM+5Wm22Az3NGDcQMiU2hfG/0MfnBs+1ZrlSGmlgWeMcXQkDk1UFb8Q==}
+  onnxruntime-common@1.20.0:
+    resolution: {integrity: sha512-9ehS4ul5fBszIcHhfxuDgk45lO+Fqrxmrgwk1Pxb1JRvbQiCB/v9Royv95SRCWHktLMviqNjBsEd/biJhd39cg==}
 
-  onnxruntime-web@1.19.2:
-    resolution: {integrity: sha512-r0ok6KpTUXR4WA+rHvUiZn7JoH02e8iS7XE1p5bXk7q3E0UaRFfYvpMNUHqEPiTBMuIssfBxDCQjUihV8dDFPg==}
+  onnxruntime-web@1.20.0:
+    resolution: {integrity: sha512-IoUf8dqHFJLV4DUSz+Ok+xxyN6cQk57gb20m6PZE5gag3QXuvegYMq9dG8t/QF4JjTKIwvfvnr16ouzCCB9IMA==}
 
   platform@1.3.6:
     resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
@@ -461,14 +461,14 @@ snapshots:
 
   long@5.2.3: {}
 
-  onnxruntime-common@1.19.2: {}
+  onnxruntime-common@1.20.0: {}
 
-  onnxruntime-web@1.19.2:
+  onnxruntime-web@1.20.0:
     dependencies:
       flatbuffers: 1.12.0
       guid-typescript: 1.0.9
       long: 5.2.3
-      onnxruntime-common: 1.19.2
+      onnxruntime-common: 1.20.0
       platform: 1.3.6
       protobufjs: 7.4.0
 
