@@ -69,7 +69,7 @@ async fn synthesize(
 ) -> AppResult<impl IntoResponse> {
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
     let buffer = {
-        let tts_model = state.tts_model.lock().await;
+        let mut tts_model = state.tts_model.lock().await;
         tts_model.easy_synthesize(
             &ident,
             &text,
@@ -94,6 +94,9 @@ impl AppState {
         let mut tts_model = TTSModelHolder::new(
             &fs::read(env::var("BERT_MODEL_PATH")?).await?,
             &fs::read(env::var("TOKENIZER_PATH")?).await?,
+            env::var("HOLDER_MAX_LOADED_MODElS")
+                .ok()
+                .and_then(|x| x.parse().ok()),
         )?;
         let models = env::var("MODELS_PATH").unwrap_or("models".to_string());
         let mut f = fs::read_dir(&models).await?;

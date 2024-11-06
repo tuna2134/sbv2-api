@@ -24,9 +24,10 @@ where
 }
 
 pub struct TTSModel {
-    vits2: Session,
+    vits2: Option<Session>,
     style_vectors: Array2<f32>,
     ident: TTSIdent,
+    bytes: Option<Vec<u8>>,
 }
 
 /// High-level Style-Bert-VITS2's API
@@ -35,6 +36,7 @@ pub struct TTSModelHolder {
     bert: Session,
     models: Vec<TTSModel>,
     jtalk: jtalk::JTalk,
+    max_loaded_models: Option<usize>,
 }
 
 impl TTSModelHolder {
@@ -43,9 +45,13 @@ impl TTSModelHolder {
     /// # Examples
     ///
     /// ```rs
-    /// let mut tts_holder = TTSModelHolder::new(std::fs::read("deberta.onnx")?, std::fs::read("tokenizer.json")?)?;
+    /// let mut tts_holder = TTSModelHolder::new(std::fs::read("deberta.onnx")?, std::fs::read("tokenizer.json")?, None)?;
     /// ```
-    pub fn new<P: AsRef<[u8]>>(bert_model_bytes: P, tokenizer_bytes: P) -> Result<Self> {
+    pub fn new<P: AsRef<[u8]>>(
+        bert_model_bytes: P,
+        tokenizer_bytes: P,
+        max_loaded_models: Option<usize>,
+    ) -> Result<Self> {
         let bert = model::load_model(bert_model_bytes, true)?;
         let jtalk = jtalk::JTalk::new()?;
         let tokenizer = tokenizer::get_tokenizer(tokenizer_bytes)?;
@@ -54,6 +60,7 @@ impl TTSModelHolder {
             models: vec![],
             jtalk,
             tokenizer,
+            max_loaded_models,
         })
     }
 
@@ -94,10 +101,25 @@ impl TTSModelHolder {
     ) -> Result<()> {
         let ident = ident.into();
         if self.find_model(ident.clone()).is_err() {
+            let mut load = true;
+            if let Some(max) = self.max_loaded_models {
+                if self.models.iter().filter(|x| x.vits2.is_some()).count() >= max {
+                    load = false;
+                }
+            }
             self.models.push(TTSModel {
-                vits2: model::load_model(vits2_bytes, false)?,
+                vits2: if load {
+                    Some(model::load_model(&vits2_bytes, false)?)
+                } else {
+                    None
+                },
                 style_vectors: style::load_style(style_vectors_bytes)?,
                 ident,
+                bytes: if self.max_loaded_models.is_some() {
+                    Some(vits2_bytes.as_ref().to_vec())
+                } else {
+                    None
+                },
             })
         }
         Ok(())
@@ -145,6 +167,42 @@ impl TTSModelHolder {
             .find(|m| m.ident == ident)
             .ok_or(Error::ModelNotFoundError(ident.to_string()))
     }
+    fn find_and_load_model<I: Into<TTSIdent>>(&mut self, ident: I) -> Result<bool> {
+        let ident = ident.into();
+        let (bytes, style_vectors) = {
+            let model = self
+                .models
+                .iter()
+                .find(|m| m.ident == ident)
+                .ok_or(Error::ModelNotFoundError(ident.to_string()))?;
+            if model.vits2.is_some() {
+                return Ok(true);
+            }
+            (model.bytes.clone().unwrap(), model.style_vectors.clone())
+        };
+        self.unload(ident.clone());
+        let s = model::load_model(&bytes, false)?;
+        if let Some(max) = self.max_loaded_models {
+            if self.models.iter().filter(|x| x.vits2.is_some()).count() >= max {
+                self.unload(self.models.first().unwrap().ident.clone());
+            }
+        }
+        self.models.push(TTSModel {
+            bytes: Some(bytes.to_vec()),
+            vits2: Some(s),
+            style_vectors,
+            ident: ident.clone(),
+        });
+        let model = self
+            .models
+            .iter()
+            .find(|m| m.ident == ident)
+            .ok_or(Error::ModelNotFoundError(ident.to_string()))?;
+        if model.vits2.is_some() {
+            return Ok(true);
+        }
+        Err(Error::ModelNotFoundError(ident.to_string()))
+    }
 
     /// Get style vector by style id and weight
     ///
@@ -167,12 +225,18 @@ impl TTSModelHolder {
     /// let audio = tts_holder.easy_synthesize("tsukuyomi", "こんにちは", 0, SynthesizeOptions::default())?;
     /// ```
     pub fn easy_synthesize<I: Into<TTSIdent> + Copy>(
-        &self,
+        &mut self,
         ident: I,
         text: &str,
         style_id: i32,
         options: SynthesizeOptions,
     ) -> Result<Vec<u8>> {
+        self.find_and_load_model(ident)?;
+        let vits2 = &self
+            .find_model(ident)?
+            .vits2
+            .as_ref()
+            .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
         let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
         let audio_array = if options.split_sentences {
             let texts: Vec<&str> = text.split('\n').collect();
@@ -183,7 +247,7 @@ impl TTSModelHolder {
                 }
                 let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
                 let audio = model::synthesize(
-                    &self.find_model(ident)?.vits2,
+                    &vits2,
                     bert_ori.to_owned(),
                     phones,
                     tones,
@@ -204,7 +268,7 @@ impl TTSModelHolder {
         } else {
             let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
             model::synthesize(
-                &self.find_model(ident)?.vits2,
+                &vits2,
                 bert_ori.to_owned(),
                 phones,
                 tones,
@@ -222,8 +286,8 @@ impl TTSModelHolder {
     /// # Note
     /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     #[allow(clippy::too_many_arguments)]
-    pub fn synthesize<I: Into<TTSIdent>>(
-        &self,
+    pub fn synthesize<I: Into<TTSIdent> + Copy>(
+        &mut self,
         ident: I,
         bert_ori: Array2<f32>,
         phones: Array1<i64>,
@@ -233,8 +297,14 @@ impl TTSModelHolder {
         sdp_ratio: f32,
         length_scale: f32,
     ) -> Result<Vec<u8>> {
+        self.find_and_load_model(ident)?;
+        let vits2 = &self
+            .find_model(ident)?
+            .vits2
+            .as_ref()
+            .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
         let audio_array = model::synthesize(
-            &self.find_model(ident)?.vits2,
+            &vits2,
             bert_ori.to_owned(),
             phones,
             tones,
