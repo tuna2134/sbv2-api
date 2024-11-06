@@ -11,6 +11,9 @@ fn main_inner() -> anyhow::Result<()> {
     let mut tts_holder = tts::TTSModelHolder::new(
         &fs::read(env::var("BERT_MODEL_PATH")?)?,
         &fs::read(env::var("TOKENIZER_PATH")?)?,
+        env::var("HOLDER_MAX_LOADED_MODElS")
+            .ok()
+            .and_then(|x| x.parse().ok()),
     )?;
     tts_holder.load_sbv2file(ident, fs::read(env::var("MODEL_PATH")?)?)?;
 
