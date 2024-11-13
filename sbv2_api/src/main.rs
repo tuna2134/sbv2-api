@@ -40,6 +40,10 @@ fn length_default() -> f32 {
     1.0
 }
 
+fn style_id_default() -> f32 {
+    0
+}
+
 #[derive(Deserialize, ToSchema)]
 struct SynthesizeRequest {
     text: String,
@@ -48,6 +52,8 @@ struct SynthesizeRequest {
     sdp_ratio: f32,
     #[serde(default = "length_default")]
     length_scale: f32,
+    #[serde(default = "style_id_default")]
+    style_id: i32,
 }
 
 #[utoipa::path(
@@ -65,6 +71,7 @@ async fn synthesize(
         ident,
         sdp_ratio,
         length_scale,
+        style_id
     }): Json<SynthesizeRequest>,
 ) -> AppResult<impl IntoResponse> {
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
@@ -73,7 +80,7 @@ async fn synthesize(
         tts_model.easy_synthesize(
             &ident,
             &text,
-            0,
+            style_id,
             SynthesizeOptions {
                 sdp_ratio,
                 length_scale,
