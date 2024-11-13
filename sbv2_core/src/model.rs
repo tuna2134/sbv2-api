@@ -52,6 +52,7 @@ pub fn synthesize(
     session: &Session,
     bert_ori: Array2<f32>,
     x_tst: Array1<i64>,
+    sid: Array1<i64>,
     tones: Array1<i64>,
     lang_ids: Array1<i64>,
     style_vector: Array1<f32>,
@@ -67,7 +68,7 @@ pub fn synthesize(
     let outputs = session.run(ort::inputs! {
         "x_tst" => x_tst,
         "x_tst_lengths" => x_tst_lengths,
-        "sid" => array![0_i64],
+        "sid" => sid,
         "tones" => tones,
         "language" => lang_ids,
         "bert" => bert,

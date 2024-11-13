@@ -142,6 +142,7 @@ impl TTSModel {
         text: String,
         ident: String,
         style_id: i32,
+        speaker_id: i64,
         sdp_ratio: f32,
         length_scale: f32,
     ) -> anyhow::Result<Bound<PyBytes>> {
@@ -149,6 +150,7 @@ impl TTSModel {
             ident.as_str(),
             &text,
             style_id,
+            speaker_id,
             SynthesizeOptions {
                 sdp_ratio,
                 length_scale,

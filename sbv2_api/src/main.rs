@@ -44,6 +44,10 @@ fn style_id_default() -> i32 {
     0
 }
 
+fn speaker_id_default() -> i64 {
+    0
+}
+
 #[derive(Deserialize, ToSchema)]
 struct SynthesizeRequest {
     text: String,
@@ -54,6 +58,8 @@ struct SynthesizeRequest {
     length_scale: f32,
     #[serde(default = "style_id_default")]
     style_id: i32,
+    #[serde(default = "speaker_id_default")]
+    speaker_id: i64,
 }
 
 #[utoipa::path(
@@ -71,7 +77,8 @@ async fn synthesize(
         ident,
         sdp_ratio,
         length_scale,
-        style_id
+        style_id,
+        speaker_id,
     }): Json<SynthesizeRequest>,
 ) -> AppResult<impl IntoResponse> {
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
@@ -81,6 +88,7 @@ async fn synthesize(
             &ident,
             &text,
             style_id,
+            speaker_id,
             SynthesizeOptions {
                 sdp_ratio,
                 length_scale,

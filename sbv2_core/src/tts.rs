@@ -229,6 +229,7 @@ impl TTSModelHolder {
         ident: I,
         text: &str,
         style_id: i32,
+        speaker_id: i64,
         options: SynthesizeOptions,
     ) -> Result<Vec<u8>> {
         self.find_and_load_model(ident)?;
@@ -247,9 +248,10 @@ impl TTSModelHolder {
                 }
                 let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
                 let audio = model::synthesize(
-                    &vits2,
+                    vits2,
                     bert_ori.to_owned(),
                     phones,
+                    Array1::from_vec(vec![speaker_id]),
                     tones,
                     lang_ids,
                     style_vector.clone(),
@@ -268,9 +270,10 @@ impl TTSModelHolder {
         } else {
             let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
             model::synthesize(
-                &vits2,
+                vits2,
                 bert_ori.to_owned(),
                 phones,
+                Array1::from_vec(vec![speaker_id]),
                 tones,
                 lang_ids,
                 style_vector,
@@ -278,41 +281,6 @@ impl TTSModelHolder {
                 options.length_scale,
             )?
         };
-        tts_util::array_to_vec(audio_array)
-    }
-
-    /// Synthesize text to audio
-    ///
-    /// # Note
-    /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
-    #[allow(clippy::too_many_arguments)]
-    pub fn synthesize<I: Into<TTSIdent> + Copy>(
-        &mut self,
-        ident: I,
-        bert_ori: Array2<f32>,
-        phones: Array1<i64>,
-        tones: Array1<i64>,
-        lang_ids: Array1<i64>,
-        style_vector: Array1<f32>,
-        sdp_ratio: f32,
-        length_scale: f32,
-    ) -> Result<Vec<u8>> {
-        self.find_and_load_model(ident)?;
-        let vits2 = &self
-            .find_model(ident)?
-            .vits2
-            .as_ref()
-            .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
-        let audio_array = model::synthesize(
-            &vits2,
-            bert_ori.to_owned(),
-            phones,
-            tones,
-            lang_ids,
-            style_vector,
-            sdp_ratio,
-            length_scale,
-        )?;
         tts_util::array_to_vec(audio_array)
     }
 }
