@@ -40,7 +40,7 @@ fn length_default() -> f32 {
     1.0
 }
 
-fn style_id_default() -> f32 {
+fn style_id_default() -> i32 {
     0
 }
 
