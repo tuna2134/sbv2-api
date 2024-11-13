@@ -1864,7 +1864,7 @@ checksum = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f"
 
 [[package]]
 name = "sbv2_api"
-version = "0.2.0-alpha"
+version = "0.2.0-alpha4"
 dependencies = [
  "anyhow",
  "axum",
@@ -1880,7 +1880,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_bindings"
-version = "0.2.0-alpha2"
+version = "0.2.0-alpha4"
 dependencies = [
  "anyhow",
  "ndarray",
@@ -1890,7 +1890,7 @@ dependencies = [
 
 [[package]]
 name = "sbv2_core"
-version = "0.2.0-alpha2"
+version = "0.2.0-alpha4"
 dependencies = [
  "anyhow",
  "dotenvy",
