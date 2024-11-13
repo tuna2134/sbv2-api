@@ -140,9 +140,6 @@ jobs:
     strategy:
       matrix:
         tag: [cpu, cuda]
-        platform:
-        - linux/amd64
-        - linux/arm64
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -163,4 +160,4 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ matrix.tag }}
           file: docker/${{ matrix.tag }}.Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64, linux/arm64
