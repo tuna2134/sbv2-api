@@ -248,7 +248,7 @@ impl TTSModelHolder {
                 }
                 let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
                 let audio = model::synthesize(
-                    &vits2,
+                    vits2,
                     bert_ori.to_owned(),
                     phones,
                     Array1::from_vec(vec![speaker_id]),
@@ -270,7 +270,7 @@ impl TTSModelHolder {
         } else {
             let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
             model::synthesize(
-                &vits2,
+                vits2,
                 bert_ori.to_owned(),
                 phones,
                 Array1::from_vec(vec![speaker_id]),
