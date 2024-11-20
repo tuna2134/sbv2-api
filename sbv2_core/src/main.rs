@@ -21,7 +21,7 @@ fn main_inner() -> anyhow::Result<()> {
     }
     #[cfg(feature = "aivmx")]
     {
-        tts_holder.load_aivmx(ident, fs::read(env::var("AIVMX_PATH")?)?)?;
+        tts_holder.load_aivmx(ident, fs::read(env::var("MODEL_PATH")?)?)?;
     }
 
     let audio =
