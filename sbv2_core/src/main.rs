@@ -30,6 +30,7 @@ fn main_inner() -> anyhow::Result<()> {
 
     Ok(())
 }
+
 #[cfg(not(feature = "std"))]
 fn main_inner() -> anyhow::Result<()> {
     Ok(())
