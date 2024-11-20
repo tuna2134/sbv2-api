@@ -140,6 +140,20 @@ impl AppState {
                     log::warn!("Error loading {entry}: {e}");
                 };
                 log::info!("Loaded: {entry}");
+            } else if name.ends_with(".aivmx") {
+                let entry = &name[..name.len() - 6];
+                log::info!("Try loading: {entry}");
+                let aivmx_bytes = match fs::read(format!("{models}/{entry}.aivmx")).await {
+                    Ok(b) => b,
+                    Err(e) => {
+                        log::warn!("Error loading aivmx bytes from file {entry}: {e}");
+                        continue;
+                    }
+                };
+                if let Err(e) = tts_model.load_aivmx(entry, aivmx_bytes) {
+                    log::error!("Error loading {entry}: {e}");
+                }
+                log::info!("Loaded: {entry}");
             }
         }
         for entry in entries {
