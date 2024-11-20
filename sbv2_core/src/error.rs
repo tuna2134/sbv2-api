@@ -21,6 +21,9 @@ pub enum Error {
     HoundError(#[from] hound::Error),
     #[error("model not found error")]
     ModelNotFoundError(String),
+    #[cfg(feature = "base64")]
+    #[error("base64 error")]
+    Base64Error(#[from] base64::DecodeError),
     #[error("other")]
     OtherError(String),
 }
