@@ -310,6 +310,8 @@ impl TTSModelHolder {
                     style_vector.clone(),
                     options.sdp_ratio,
                     options.length_scale,
+                    0.677,
+                    0.8,
                 )?;
                 audios.push(audio.clone());
                 if i != texts.len() - 1 {
@@ -332,6 +334,8 @@ impl TTSModelHolder {
                 style_vector,
                 options.sdp_ratio,
                 options.length_scale,
+                0.677,
+                0.8,
             )?
         };
         tts_util::array_to_vec(audio_array)
