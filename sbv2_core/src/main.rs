@@ -15,7 +15,14 @@ fn main_inner() -> anyhow::Result<()> {
             .ok()
             .and_then(|x| x.parse().ok()),
     )?;
-    tts_holder.load_sbv2file(ident, fs::read(env::var("MODEL_PATH")?)?)?;
+    #[cfg(not(feature = "aivmx"))]
+    {
+        tts_holder.load_sbv2file(ident, fs::read(env::var("MODEL_PATH")?)?)?;
+    }
+    #[cfg(feature = "aivmx")]
+    {
+        tts_holder.load_aivmx(ident, fs::read(env::var("MODEL_PATH")?)?)?;
+    }
 
     let audio =
         tts_holder.easy_synthesize(ident, &text, 0, 0, tts::SynthesizeOptions::default())?;
@@ -23,6 +30,7 @@ fn main_inner() -> anyhow::Result<()> {
 
     Ok(())
 }
+
 #[cfg(not(feature = "std"))]
 fn main_inner() -> anyhow::Result<()> {
     Ok(())

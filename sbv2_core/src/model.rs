@@ -58,6 +58,8 @@ pub fn synthesize(
     style_vector: Array1<f32>,
     sdp_ratio: f32,
     length_scale: f32,
+    noise_scale: f32,
+    noise_scale_w: f32,
 ) -> Result<Array3<f32>> {
     let bert = bert_ori.insert_axis(Axis(0));
     let x_tst_lengths: Array1<i64> = array![x_tst.shape()[0] as i64];
@@ -75,6 +77,8 @@ pub fn synthesize(
         "style_vec" => style_vector,
         "sdp_ratio" => array![sdp_ratio],
         "length_scale" => array![length_scale],
+        "noise_scale" => array![noise_scale],
+        "noise_scale_w" => array![noise_scale_w]
     }?)?;
 
     let audio_array = outputs["output"]

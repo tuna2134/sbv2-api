@@ -94,7 +94,7 @@ model = get_net_g(
 )
 
 
-def forward(x, x_len, sid, tone, lang, bert, style, length_scale, sdp_ratio):
+def forward(x, x_len, sid, tone, lang, bert, style, length_scale, sdp_ratio, noise_scale, noise_scale_w):
     return model.infer(
         x,
         x_len,
@@ -105,6 +105,8 @@ def forward(x, x_len, sid, tone, lang, bert, style, length_scale, sdp_ratio):
         style,
         sdp_ratio=sdp_ratio,
         length_scale=length_scale,
+        noise_scale=noise_scale,
+        noise_scale_w=noise_scale_w,
     )
 
 
@@ -122,6 +124,8 @@ torch.onnx.export(
         style_vec_tensor,
         torch.tensor(1.0),
         torch.tensor(0.0),
+        torch.tensor(0.6777),
+        torch.tensor(0.8),
     ),
     f"../models/model_{out_name}.onnx",
     verbose=True,
@@ -144,6 +148,8 @@ torch.onnx.export(
         "style_vec",
         "length_scale",
         "sdp_ratio",
+        "noise_scale",
+        "noise_scale_w"
     ],
     output_names=["output"],
 )
