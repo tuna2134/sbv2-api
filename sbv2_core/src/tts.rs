@@ -194,6 +194,15 @@ impl TTSModelHolder {
         }
     }
 
+    pub fn text2phones(
+        &self,
+        text: &str,
+    ) -> Result<(jtalk::JTalkProcess, String, Vec<String>, Vec<i32>, Vec<i32>)> {
+        let (process, normalized_text, phones, tones, word2ph) =
+            tts_util::text2phones(text, &self.jtalk)?;
+        Ok((process, normalized_text, phones, tones, word2ph))
+    }
+
     /// Parse text and return the input for synthesize
     ///
     /// # Note
@@ -201,11 +210,18 @@ impl TTSModelHolder {
     #[allow(clippy::type_complexity)]
     pub fn parse_text(
         &self,
-        text: &str,
+        process: jtalk::JTalkProcess,
+        normalized_text: String,
+        phones: Vec<String>,
+        tones: Vec<i32>,
+        word2ph: Vec<i32>,
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
         crate::tts_util::parse_text_blocking(
-            text,
-            &self.jtalk,
+            &normalized_text,
+            phones,
+            tones,
+            word2ph,
+            &process,
             &self.tokenizer,
             |token_ids, attention_masks| {
                 crate::bert::predict(&self.bert, token_ids, attention_masks)
@@ -299,7 +315,9 @@ impl TTSModelHolder {
                 if t.is_empty() {
                     continue;
                 }
-                let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
+                let (process, normalized_text, phones, tones, word2ph) = self.text2phones(t)?;
+                let (bert_ori, phones, tones, lang_ids) =
+                    self.parse_text(process, normalized_text, phones, tones, word2ph)?;
                 let audio = model::synthesize(
                     vits2,
                     bert_ori.to_owned(),
@@ -323,7 +341,9 @@ impl TTSModelHolder {
                 &audios.iter().map(|x| x.view()).collect::<Vec<_>>(),
             )?
         } else {
-            let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+            let (process, normalized_text, phones, tones, word2ph) = self.text2phones(text)?;
+            let (bert_ori, phones, tones, lang_ids) =
+                self.parse_text(process, normalized_text, phones, tones, word2ph)?;
             model::synthesize(
                 vits2,
                 bert_ori.to_owned(),

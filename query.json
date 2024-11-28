@@ -1,0 +1,108 @@
+{
+    "accent_phrases": [
+        {
+            "moras": [
+                {
+                    "text": "エ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "e",
+                    "vowel_length": 0.12325935810804367,
+                    "pitch": 5.327354907989502
+                },
+                {
+                    "text": "イ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "i",
+                    "vowel_length": 0.09009385108947754,
+                    "pitch": 5.580242156982422
+                },
+                {
+                    "text": "チ",
+                    "consonant": "ch",
+                    "consonant_length": 0.0983603373169899,
+                    "vowel": "i",
+                    "vowel_length": 0.0913621261715889,
+                    "pitch": 5.767735481262207
+                },
+                {
+                    "text": "イ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "i",
+                    "vowel_length": 0.10712748020887375,
+                    "pitch": 5.784602165222168
+                },
+                {
+                    "text": "イ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "i",
+                    "vowel_length": 0.0993412435054779,
+                    "pitch": 5.813300132751465
+                },
+                {
+                    "text": "エ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "e",
+                    "vowel_length": 0.10842463374137878,
+                    "pitch": 5.881042003631592
+                },
+                {
+                    "text": "ル",
+                    "consonant": "r",
+                    "consonant_length": 0.040290430188179016,
+                    "vowel": "u",
+                    "vowel_length": 0.08493387699127197,
+                    "pitch": 5.9044599533081055
+                },
+                {
+                    "text": "エ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "e",
+                    "vowel_length": 0.10042247176170349,
+                    "pitch": 5.863067626953125
+                },
+                {
+                    "text": "ル",
+                    "consonant": "r",
+                    "consonant_length": 0.03864041715860367,
+                    "vowel": "u",
+                    "vowel_length": 0.08190233260393143,
+                    "pitch": 5.666939735412598
+                },
+                {
+                    "text": "オ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "o",
+                    "vowel_length": 0.12268158048391342,
+                    "pitch": 5.506781101226807
+                },
+                {
+                    "text": "オ",
+                    "consonant": null,
+                    "consonant_length": null,
+                    "vowel": "o",
+                    "vowel_length": 0.17121724784374237,
+                    "pitch": 5.429795742034912
+                }
+            ],
+            "accent": 11,
+            "pause_mora": null,
+            "is_interrogative": false
+        }
+    ],
+    "speedScale": 1.0,
+    "pitchScale": 0.0,
+    "intonationScale": 1.0,
+    "volumeScale": 1.0,
+    "prePhonemeLength": 0.1,
+    "postPhonemeLength": 0.1,
+    "outputSamplingRate": 24000,
+    "outputStereo": false,
+    "kana": "エイチイイエルエルオオ'"
+}

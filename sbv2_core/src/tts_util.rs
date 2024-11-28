@@ -5,6 +5,7 @@ use crate::{jtalk, nlp, norm, tokenizer, utils};
 use hound::{SampleFormat, WavSpec, WavWriter};
 use ndarray::{concatenate, s, Array, Array1, Array2, Array3, Axis};
 use tokenizers::Tokenizer;
+
 /// Parse text and return the input for synthesize
 ///
 /// # Note
@@ -85,22 +86,32 @@ pub async fn parse_text(
     ))
 }
 
+pub fn text2phones(
+    text: &str,
+    jtalk: &jtalk::JTalk,
+) -> Result<(jtalk::JTalkProcess, String, Vec<String>, Vec<i32>, Vec<i32>)> {
+    let text = jtalk.num2word(text)?;
+    let normalized_text = norm::normalize_text(&text);
+
+    let process = jtalk.process_text(&normalized_text)?;
+    let (phones, tones, word2ph) = process.g2p()?;
+    Ok((process, normalized_text, phones, tones, word2ph))
+}
+
 /// Parse text and return the input for synthesize
 ///
 /// # Note
 /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
 #[allow(clippy::type_complexity)]
 pub fn parse_text_blocking(
-    text: &str,
-    jtalk: &jtalk::JTalk,
+    normalized_text: &str,
+    phones: Vec<String>,
+    tones: Vec<i32>,
+    mut word2ph: Vec<i32>,
+    process: &jtalk::JTalkProcess,
     tokenizer: &Tokenizer,
     bert_predict: impl FnOnce(Vec<i64>, Vec<i64>) -> Result<ndarray::Array2<f32>>,
 ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
-    let text = jtalk.num2word(text)?;
-    let normalized_text = norm::normalize_text(&text);
-
-    let process = jtalk.process_text(&normalized_text)?;
-    let (phones, tones, mut word2ph) = process.g2p()?;
     let (phones, tones, lang_ids) = nlp::cleaned_text_to_sequence(phones, tones);
 
     let phones = utils::intersperse(&phones, 0);
