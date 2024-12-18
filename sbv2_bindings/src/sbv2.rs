@@ -157,7 +157,7 @@ impl TTSModel {
                 ..Default::default()
             },
         )?;
-        Ok(PyBytes::new_bound(py, &data))
+        Ok(PyBytes::new(py, &data))
     }
 
     fn unload(&mut self, ident: String) -> bool {
