@@ -136,9 +136,9 @@ impl TTSModel {
     /// -------
     /// voice_data : bytes
     ///     音声データ
-    fn synthesize<'p>(
-        &'p mut self,
-        py: Python<'p>,
+    fn synthesize(
+        &mut self,
+        py: Python,
         text: String,
         ident: String,
         style_id: i32,
@@ -157,7 +157,7 @@ impl TTSModel {
                 ..Default::default()
             },
         )?;
-        Ok(PyBytes::new_bound(py, &data))
+        Ok(PyBytes::new(py, &data))
     }
 
     fn unload(&mut self, ident: String) -> bool {
