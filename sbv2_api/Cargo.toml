@@ -13,7 +13,7 @@ sbv2_core = { version = "0.2.0-alpha2", path = "../sbv2_core", features = ["aivm
 serde = { version = "1.0.210", features = ["derive"] }
 tokio = { version = "1.40.0", features = ["full"] }
 utoipa = { version = "5.0.0", features = ["axum_extras"] }
-utoipa-scalar = { version = "0.2.0", features = ["axum"] }
+utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 
 [features]
 coreml = ["sbv2_core/coreml"]
