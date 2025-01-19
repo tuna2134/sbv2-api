@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
-axum = "0.7.5"
+axum = "0.8.0"
 dotenvy.workspace = true
 env_logger.workspace = true
 log = "0.4.22"
