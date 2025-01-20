@@ -18,6 +18,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  packages: write
   
 env:
   GHCR_REPO: ghcr.io/tuna2134/sbv2-api
