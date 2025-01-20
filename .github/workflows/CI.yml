@@ -142,6 +142,7 @@ jobs:
             runner: ubuntu-latest
           - platform: linux/arm64
             runner: ubuntu-24.04-arm64
+        tag: [cpu, cuda]
     steps:
       - name: Prepare
         run: |
@@ -175,6 +176,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,"name=${{ env.GHCR_REPO }}",push-by-digest=true,name-canonical=true,push=true
+          file: docker/${{ matrix.tag }}.Dockerfile
 
       - name: Export digest
         run: |
