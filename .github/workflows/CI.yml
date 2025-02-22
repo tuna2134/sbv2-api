@@ -152,7 +152,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -175,7 +175,7 @@ jobs:
           file: ./scripts/docker/${{ matrix.tag }}.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
 
   merge:
     runs-on: ubuntu-latest
