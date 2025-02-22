@@ -121,6 +121,6 @@ curl http://localhost:3000/models
 
 ## 謝辞
 
-- [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
+- [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードを書くにあたり、ベースとなる部分を参考にさせていただきました。
 - [Googlefan](https://github.com/Googlefan256) - 彼にモデルを ONNX ヘ変換および効率化をする方法を教わりました。
 - [Aivis Project](https://github.com/Aivis-Project/AivisSpeech-Engine) - 辞書部分
