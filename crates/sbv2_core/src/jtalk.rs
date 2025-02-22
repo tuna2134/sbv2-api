@@ -1,21 +1,21 @@
 use crate::error::{Error, Result};
 use crate::mora::{MORA_KATA_TO_MORA_PHONEMES, VOWELS};
 use crate::norm::{replace_punctuation, PUNCTUATIONS};
-use jpreprocess::*;
+use jpreprocess::{kind, DefaultTokenizer, JPreprocess, SystemDictionaryConfig, UserDictionary};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::cmp::Reverse;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-type JPreprocessType = JPreprocess<DefaultFetcher>;
+type JPreprocessType = JPreprocess<DefaultTokenizer>;
 
 fn initialize_jtalk() -> Result<JPreprocessType> {
-    let config = JPreprocessConfig {
-        dictionary: SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic),
-        user_dictionary: None,
-    };
-    let jpreprocess = JPreprocess::from_config(config)?;
+    let sdic =
+        SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic).load()?;
+    let u = UserDictionary::load(include_bytes!(concat!(env!("OUT_DIR"), "/all.bin")))
+        .map_err(|e| Error::LinderaError(e.to_string()))?;
+    let jpreprocess = JPreprocess::with_dictionaries(sdic, Some(u));
     Ok(jpreprocess)
 }
 

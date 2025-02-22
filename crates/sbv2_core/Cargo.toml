@@ -1,12 +1,12 @@
 [package]
 name = "sbv2_core"
-description = "Style-Bert-VITSの推論ライブラリ"
-version = "0.2.0-alpha4"
-edition = "2021"
-license = "MIT"
-readme = "../README.md"
-repository = "https://github.com/tuna2134/sbv2-api"
-documentation = "https://docs.rs/sbv2_core"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+readme.workspace = true
+repository.workspace = true
+documentation.workspace = true
+license.workspace = true
 
 [dependencies]
 anyhow.workspace = true
@@ -14,17 +14,17 @@ base64 = { version = "0.22.1", optional = true }
 dotenvy.workspace = true
 env_logger.workspace = true
 hound = "3.5.1"
-jpreprocess = { version = "0.10.0", features = ["naist-jdic"] }
+jpreprocess = { version = "0.12.0", features = ["naist-jdic"] }
 ndarray.workspace = true
 npyz = { version = "0.8.3", optional = true }
 num_cpus = "1.16.0"
 once_cell.workspace = true
-ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.8", optional = true }
+ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.9", optional = true }
 regex = "1.10.6"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tar = "0.4.41"
-thiserror = "1.0.63"
+thiserror = "2.0.11"
 tokenizers = { version = "0.21.0", default-features = false }
 zstd = "0.13.2"
 
@@ -40,3 +40,6 @@ default = ["std"]
 no_std = ["tokenizers/unstable_wasm"]
 aivmx = ["npyz", "base64"]
 base64 = ["dep:base64"]
+
+[build-dependencies]
+ureq = "3.0.6"

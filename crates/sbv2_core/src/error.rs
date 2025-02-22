@@ -6,6 +6,8 @@ pub enum Error {
     TokenizerError(#[from] tokenizers::Error),
     #[error("JPreprocess error: {0}")]
     JPreprocessError(#[from] jpreprocess::error::JPreprocessError),
+    #[error("Lindera error: {0}")]
+    LinderaError(String),
     #[cfg(feature = "std")]
     #[error("ONNX error: {0}")]
     OrtError(#[from] ort::Error),

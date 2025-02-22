@@ -36,7 +36,7 @@ data = array.tolist()
 hyper_parameters = HyperParameters.load_from_json(config_file)
 out_name = hyper_parameters.model_name
 
-with open(f"../models/style_vectors_{out_name}.json", "w") as f:
+with open(f"../../models/style_vectors_{out_name}.json", "w") as f:
     json.dump(
         {
             "data": data,
@@ -127,7 +127,7 @@ torch.onnx.export(
         torch.tensor(0.6777),
         torch.tensor(0.8),
     ),
-    f"../models/model_{out_name}.onnx",
+    f"../../models/model_{out_name}.onnx",
     verbose=True,
     dynamic_axes={
         "x_tst": {0: "batch_size", 1: "x_tst_max_length"},
@@ -153,11 +153,11 @@ torch.onnx.export(
     ],
     output_names=["output"],
 )
-os.system(f"onnxsim ../models/model_{out_name}.onnx ../models/model_{out_name}.onnx")
-onnxfile = open(f"../models/model_{out_name}.onnx", "rb").read()
-stylefile = open(f"../models/style_vectors_{out_name}.json", "rb").read()
+os.system(f"onnxsim ../../models/model_{out_name}.onnx ../../models/model_{out_name}.onnx")
+onnxfile = open(f"../../models/model_{out_name}.onnx", "rb").read()
+stylefile = open(f"../../models/style_vectors_{out_name}.json", "rb").read()
 version = bytes("1", "utf8")
-with taropen(f"../models/tmp_{out_name}.sbv2tar", "w") as w:
+with taropen(f"../../models/tmp_{out_name}.sbv2tar", "w") as w:
 
     def add_tar(f, b):
         t = TarInfo(f)
@@ -167,9 +167,9 @@ with taropen(f"../models/tmp_{out_name}.sbv2tar", "w") as w:
     add_tar("version.txt", version)
     add_tar("model.onnx", onnxfile)
     add_tar("style_vectors.json", stylefile)
-open(f"../models/{out_name}.sbv2", "wb").write(
+open(f"../../models/{out_name}.sbv2", "wb").write(
     ZstdCompressor(threads=-1, level=22).compress(
-        open(f"../models/tmp_{out_name}.sbv2tar", "rb").read()
+        open(f"../../models/tmp_{out_name}.sbv2tar", "rb").read()
     )
 )
-os.unlink(f"../models/tmp_{out_name}.sbv2tar")
+os.unlink(f"../../models/tmp_{out_name}.sbv2tar")

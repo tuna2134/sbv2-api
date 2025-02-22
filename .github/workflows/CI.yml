@@ -19,9 +19,6 @@ permissions:
   contents: read
   id-token: write
   packages: write
-  
-env:
-  GHCR_REPO: ghcr.io/tuna2134/sbv2-api
 
 jobs:
   linux:
@@ -45,12 +42,12 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
-          working-directory: sbv2_bindings
+          working-directory: ./crates/sbv2_bindings
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: sbv2_bindings/dist
+          path: ./crates/sbv2_bindings/dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -71,12 +68,12 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
-          working-directory: sbv2_bindings
+          working-directory: ./crates/sbv2_bindings
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: sbv2_bindings/dist
+          path: ./crates/sbv2_bindings/dist
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -96,12 +93,12 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
-          working-directory: sbv2_bindings
+          working-directory: ./crates/sbv2_bindings
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: sbv2_bindings/dist
+          path: ./crates/sbv2_bindings/dist
 
   sdist:
     runs-on: ubuntu-latest
@@ -112,12 +109,12 @@ jobs:
         with:
           command: sdist
           args: --out dist
-          working-directory: sbv2_bindings
+          working-directory: ./crates/sbv2_bindings
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
           name: wheels-sdist
-          path: sbv2_bindings/dist
+          path: ./crates/sbv2_bindings/dist
 
   release:
     name: Release
@@ -148,14 +145,14 @@ jobs:
       - name: Prepare
         run: |
           platform=${{ matrix.machine.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV          
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.GHCR_REPO }}            
+            ghcr.io/${{ github.repository }}
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -175,10 +172,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           labels: ${{ steps.meta.outputs.labels }}
-          file: docker/${{ matrix.tag }}.Dockerfile
+          file: ./scripts/docker/${{ matrix.tag }}.Dockerfile
           push: true
           tags: |
-            ${{ env.GHCR_REPO }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
+            ghcr.io/${{ github.repository }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
 
   merge:
     runs-on: ubuntu-latest
@@ -191,7 +188,7 @@ jobs:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
-      
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:

@@ -1,17 +1,18 @@
 use crate::error::Result;
 use ndarray::{Array2, Ix2};
-use ort::Session;
+use ort::session::Session;
+use ort::value::TensorRef;
 
 pub fn predict(
-    session: &Session,
+    session: &mut Session,
     token_ids: Vec<i64>,
     attention_masks: Vec<i64>,
 ) -> Result<Array2<f32>> {
     let outputs = session.run(
         ort::inputs! {
-            "input_ids" => Array2::from_shape_vec((1, token_ids.len()), token_ids).unwrap(),
-            "attention_mask" => Array2::from_shape_vec((1, attention_masks.len()), attention_masks).unwrap(),
-        }?
+            "input_ids" => TensorRef::from_array_view((vec![1, token_ids.len() as i64], token_ids.as_slice()))?,
+            "attention_mask" => TensorRef::from_array_view((vec![1, attention_masks.len() as i64], attention_masks.as_slice()))?,
+        }
     )?;
 
     let output = outputs["output"]
