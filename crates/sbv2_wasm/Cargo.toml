@@ -6,6 +6,7 @@ description.workspace = true
 readme.workspace = true
 repository.workspace = true
 documentation.workspace = true
+license.workspace = true
 
 [lib]
 crate-type = ["cdylib", "rlib"]

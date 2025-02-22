@@ -1,6 +1,6 @@
 {
 	"name": "sbv2",
-	"version": "0.1.1",
+	"version": "0.2.0-alpha6",
 	"description": "Style Bert VITS2 wasm",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -21,9 +21,5 @@
 	"dependencies": {
 		"onnxruntime-web": "^1.20.1"
 	},
-	"files": [
-		"dist/*",
-		"package.json",
-		"README.md"
-	]
+	"files": ["dist/*", "package.json", "README.md", "pkg/*.ts", "pkg/*.js"]
 }

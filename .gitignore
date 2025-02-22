@@ -1,10 +1,10 @@
-target
+target/
 models/
 !models/.gitkeep
 venv/
 .env
-output.wav
-node_modules
+*.wav
+node_modules/
 dist/
 *.csv
 *.bin

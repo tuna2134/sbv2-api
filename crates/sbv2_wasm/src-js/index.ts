@@ -74,6 +74,8 @@ export class ModelHolder {
 							style_vec: e,
 							sdp_ratio: new Tensor("float32", [f]),
 							length_scale: new Tensor("float32", [g]),
+							noise_scale: new Tensor("float32", [0.677]),
+							noise_scale_w: new Tensor("float32", [0.8]),
 						})
 					).output;
 					return [new Uint32Array(res.dims), await res.getData(true)];
