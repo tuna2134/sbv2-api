@@ -23,7 +23,7 @@ pub fn load_model<P: AsRef<[u8]>>(model_file: P, bert: bool) -> Result<Session> 
         #[allow(unused_mut)]
         let mut cuda = ort::execution_providers::CUDAExecutionProvider::default()
             .with_conv_algorithm_search(
-                ort::execution_providers::CUDAExecutionProviderCuDNNConvAlgoSearch::Default,
+                ort::execution_providers::cuda::CUDAExecutionProviderCuDNNConvAlgoSearch::Default,
             );
         #[cfg(feature = "cuda_tf32")]
         {
