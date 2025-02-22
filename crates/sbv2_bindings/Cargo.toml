@@ -17,4 +17,8 @@ crate-type = ["cdylib"]
 anyhow.workspace = true
 ndarray.workspace = true
 pyo3 = { version = "0.23.0", features = ["anyhow"] }
-sbv2_core = { version = "0.2.0-alpha2", path = "../sbv2_core" }
+sbv2_core = { path = "../sbv2_core", features = ["std"], default-features = false }
+
+[features]
+agpl_dict = ["sbv2_core/agpl_dict"]
+default = ["agpl_dict"]

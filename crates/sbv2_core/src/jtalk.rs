@@ -10,12 +10,23 @@ use std::sync::Arc;
 
 type JPreprocessType = JPreprocess<DefaultTokenizer>;
 
+#[cfg(feature = "agpl_dict")]
+fn agpl_dict() -> Result<Option<UserDictionary>> {
+    Ok(Some(
+        UserDictionary::load(include_bytes!(concat!(env!("OUT_DIR"), "/all.bin")))
+            .map_err(|e| Error::LinderaError(e.to_string()))?,
+    ))
+}
+
+#[cfg(not(feature = "agpl_dict"))]
+fn agpl_dict() -> Result<Option<UserDictionary>> {
+    Ok(None)
+}
+
 fn initialize_jtalk() -> Result<JPreprocessType> {
     let sdic =
         SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic).load()?;
-    let u = UserDictionary::load(include_bytes!(concat!(env!("OUT_DIR"), "/all.bin")))
-        .map_err(|e| Error::LinderaError(e.to_string()))?;
-    let jpreprocess = JPreprocess::with_dictionaries(sdic, Some(u));
+    let jpreprocess = JPreprocess::with_dictionaries(sdic, agpl_dict()?);
     Ok(jpreprocess)
 }
 

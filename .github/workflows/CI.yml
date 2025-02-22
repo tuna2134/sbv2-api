@@ -201,9 +201,9 @@ jobs:
 
       - name: Merge
         run: |
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}:cuda \
-              ${{ env.GHCR_REPO }}:latest-cuda-amd64 \
-              ${{ env.GHCR_REPO }}:latest-cuda-arm64
-          docker buildx imagetools create -t ${{ env.GHCR_REPO }}:cpu \
-              ${{ env.GHCR_REPO }}:latest-cpu-amd64 \
-              ${{ env.GHCR_REPO }}:latest-cpu-arm64
+          docker buildx imagetools create -t ghcr.io/${{ github.repository }}:cuda \
+              ghcr.io/${{ github.repository }}:latest-cuda-amd64 \
+              ghcr.io/${{ github.repository }}:latest-cuda-arm64
+          docker buildx imagetools create -t ghcr.io/${{ github.repository }}:cpu \
+              ghcr.io/${{ github.repository }}:latest-cpu-amd64 \
+              ghcr.io/${{ github.repository }}:latest-cpu-arm64
