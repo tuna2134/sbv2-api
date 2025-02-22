@@ -153,7 +153,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -176,7 +175,7 @@ jobs:
           file: ./scripts/docker/${{ matrix.tag }}.Dockerfile
           push: true
           tags: |
-            ${{ env.GHCR_REPO }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.tag }}-${{ matrix.machine.platform }}
 
   merge:
     runs-on: ubuntu-latest
