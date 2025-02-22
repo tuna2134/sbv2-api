@@ -40,6 +40,14 @@ fn length_default() -> f32 {
     1.0
 }
 
+fn style_id_default() -> i32 {
+    0
+}
+
+fn speaker_id_default() -> i64 {
+    0
+}
+
 #[derive(Deserialize, ToSchema)]
 struct SynthesizeRequest {
     text: String,
@@ -48,6 +56,10 @@ struct SynthesizeRequest {
     sdp_ratio: f32,
     #[serde(default = "length_default")]
     length_scale: f32,
+    #[serde(default = "style_id_default")]
+    style_id: i32,
+    #[serde(default = "speaker_id_default")]
+    speaker_id: i64,
 }
 
 #[utoipa::path(
@@ -65,6 +77,8 @@ async fn synthesize(
         ident,
         sdp_ratio,
         length_scale,
+        style_id,
+        speaker_id,
     }): Json<SynthesizeRequest>,
 ) -> AppResult<impl IntoResponse> {
     log::debug!("processing request: text={text}, ident={ident}, sdp_ratio={sdp_ratio}, length_scale={length_scale}");
@@ -73,7 +87,8 @@ async fn synthesize(
         tts_model.easy_synthesize(
             &ident,
             &text,
-            0,
+            style_id,
+            speaker_id,
             SynthesizeOptions {
                 sdp_ratio,
                 length_scale,
@@ -124,6 +139,20 @@ impl AppState {
                 if let Err(e) = tts_model.load_sbv2file(entry, sbv2_bytes) {
                     log::warn!("Error loading {entry}: {e}");
                 };
+                log::info!("Loaded: {entry}");
+            } else if name.ends_with(".aivmx") {
+                let entry = &name[..name.len() - 6];
+                log::info!("Try loading: {entry}");
+                let aivmx_bytes = match fs::read(format!("{models}/{entry}.aivmx")).await {
+                    Ok(b) => b,
+                    Err(e) => {
+                        log::warn!("Error loading aivmx bytes from file {entry}: {e}");
+                        continue;
+                    }
+                };
+                if let Err(e) = tts_model.load_aivmx(entry, aivmx_bytes) {
+                    log::error!("Error loading {entry}: {e}");
+                }
                 log::info!("Loaded: {entry}");
             }
         }

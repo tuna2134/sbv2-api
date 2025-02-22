@@ -1,7 +1,13 @@
 use crate::error::{Error, Result};
 use crate::{jtalk, model, style, tokenizer, tts_util};
+#[cfg(feature = "aivmx")]
+use base64::prelude::{Engine as _, BASE64_STANDARD};
+#[cfg(feature = "aivmx")]
+use ndarray::ShapeBuilder;
 use ndarray::{concatenate, Array1, Array2, Array3, Axis};
 use ort::session::Session;
+#[cfg(feature = "aivmx")]
+use std::io::Cursor;
 use tokenizers::Tokenizer;
 
 #[derive(PartialEq, Eq, Clone)]
@@ -67,6 +73,53 @@ impl TTSModelHolder {
     /// Return a list of model names
     pub fn models(&self) -> Vec<String> {
         self.models.iter().map(|m| m.ident.to_string()).collect()
+    }
+
+    #[cfg(feature = "aivmx")]
+    pub fn load_aivmx<I: Into<TTSIdent>, P: AsRef<[u8]>>(
+        &mut self,
+        ident: I,
+        aivmx_bytes: P,
+    ) -> Result<()> {
+        let ident = ident.into();
+        if self.find_model(ident.clone()).is_err() {
+            let mut load = true;
+            if let Some(max) = self.max_loaded_models {
+                if self.models.iter().filter(|x| x.vits2.is_some()).count() >= max {
+                    load = false;
+                }
+            }
+            let model = model::load_model(&aivmx_bytes, false)?;
+            let metadata = model.metadata()?;
+            if let Some(aivm_style_vectors) = metadata.custom("aivm_style_vectors")? {
+                let aivm_style_vectors = BASE64_STANDARD.decode(aivm_style_vectors)?;
+                let style_vectors = Cursor::new(&aivm_style_vectors);
+                let reader = npyz::NpyFile::new(style_vectors)?;
+                let style_vectors = {
+                    let shape = reader.shape().to_vec();
+                    let order = reader.order();
+                    let data = reader.into_vec::<f32>()?;
+                    let shape = match shape[..] {
+                        [i1, i2] => [i1 as usize, i2 as usize],
+                        _ => panic!("expected 2D array"),
+                    };
+                    let true_shape = shape.set_f(order == npyz::Order::Fortran);
+                    ndarray::Array2::from_shape_vec(true_shape, data)?
+                };
+                drop(metadata);
+                self.models.push(TTSModel {
+                    vits2: if load { Some(model) } else { None },
+                    bytes: if self.max_loaded_models.is_some() {
+                        Some(aivmx_bytes.as_ref().to_vec())
+                    } else {
+                        None
+                    },
+                    ident,
+                    style_vectors,
+                })
+            }
+        }
+        Ok(())
     }
 
     /// Load a .sbv2 file binary
@@ -229,6 +282,7 @@ impl TTSModelHolder {
         ident: I,
         text: &str,
         style_id: i32,
+        speaker_id: i64,
         options: SynthesizeOptions,
     ) -> Result<Vec<u8>> {
         self.find_and_load_model(ident)?;
@@ -251,11 +305,14 @@ impl TTSModelHolder {
                     vits2,
                     bert_ori.to_owned(),
                     phones,
+                    Array1::from_vec(vec![speaker_id]),
                     tones,
                     lang_ids,
                     style_vector.clone(),
                     options.sdp_ratio,
                     options.length_scale,
+                    0.677,
+                    0.8,
                 )?;
                 audios.push(audio.clone());
                 if i != texts.len() - 1 {
@@ -278,48 +335,16 @@ impl TTSModelHolder {
                 vits2,
                 bert_ori.to_owned(),
                 phones,
+                Array1::from_vec(vec![speaker_id]),
                 tones,
                 lang_ids,
                 style_vector,
                 options.sdp_ratio,
                 options.length_scale,
+                0.677,
+                0.8,
             )?
         };
-        tts_util::array_to_vec(audio_array)
-    }
-
-    /// Synthesize text to audio
-    ///
-    /// # Note
-    /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
-    #[allow(clippy::too_many_arguments)]
-    pub fn synthesize<I: Into<TTSIdent> + Copy>(
-        &mut self,
-        ident: I,
-        bert_ori: Array2<f32>,
-        phones: Array1<i64>,
-        tones: Array1<i64>,
-        lang_ids: Array1<i64>,
-        style_vector: Array1<f32>,
-        sdp_ratio: f32,
-        length_scale: f32,
-    ) -> Result<Vec<u8>> {
-        self.find_and_load_model(ident)?;
-        let vits2 = self
-            .find_model(ident)?
-            .vits2
-            .as_mut()
-            .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
-        let audio_array = model::synthesize(
-            vits2,
-            bert_ori.to_owned(),
-            phones,
-            tones,
-            lang_ids,
-            style_vector,
-            sdp_ratio,
-            length_scale,
-        )?;
         tts_util::array_to_vec(audio_array)
     }
 }

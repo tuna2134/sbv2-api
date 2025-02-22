@@ -1,7 +1,7 @@
 [package]
 name = "sbv2_core"
 description = "Style-Bert-VITSの推論ライブラリ"
-version = "0.2.0-alpha2"
+version = "0.2.0-alpha4"
 edition = "2021"
 license = "MIT"
 readme = "../README.md"
@@ -10,11 +10,13 @@ documentation = "https://docs.rs/sbv2_core"
 
 [dependencies]
 anyhow.workspace = true
+base64 = { version = "0.22.1", optional = true }
 dotenvy.workspace = true
 env_logger.workspace = true
 hound = "3.5.1"
 jpreprocess = { version = "0.12.0", features = ["naist-jdic"] }
 ndarray.workspace = true
+npyz = { version = "0.8.3", optional = true }
 num_cpus = "1.16.0"
 once_cell.workspace = true
 ort = { git = "https://github.com/pykeio/ort.git", version = "2.0.0-rc.9", optional = true }
@@ -36,3 +38,5 @@ tensorrt = ["ort/tensorrt", "std"]
 coreml = ["ort/coreml", "std"]
 default = ["std"]
 no_std = ["tokenizers/unstable_wasm"]
+aivmx = ["npyz", "base64"]
+base64 = ["dep:base64"]
