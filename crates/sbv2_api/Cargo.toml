@@ -1,7 +1,11 @@
 [package]
 name = "sbv2_api"
-version = "0.2.0-alpha4"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+readme.workspace = true
+repository.workspace = true
+documentation.workspace = true
 
 [dependencies]
 anyhow.workspace = true

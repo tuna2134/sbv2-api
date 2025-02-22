@@ -1,12 +1,11 @@
 [package]
 name = "sbv2_core"
-description = "Style-Bert-VITSの推論ライブラリ"
-version = "0.2.0-alpha4"
-edition = "2021"
-license = "MIT"
-readme = "../README.md"
-repository = "https://github.com/tuna2134/sbv2-api"
-documentation = "https://docs.rs/sbv2_core"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+readme.workspace = true
+repository.workspace = true
+documentation.workspace = true
 
 [dependencies]
 anyhow.workspace = true
@@ -40,3 +39,6 @@ default = ["std"]
 no_std = ["tokenizers/unstable_wasm"]
 aivmx = ["npyz", "base64"]
 base64 = ["dep:base64"]
+
+[build-dependencies]
+reqwest = { version = "0.12.12", features = ["blocking"] }

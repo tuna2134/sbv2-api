@@ -13,7 +13,7 @@ type JPreprocessType = JPreprocess<DefaultTokenizer>;
 fn initialize_jtalk() -> Result<JPreprocessType> {
     let sdic =
         SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic).load()?;
-    let u = UserDictionary::load(include_bytes!("./dic/all.dic/all.bin"))
+    let u = UserDictionary::load(include_bytes!(concat!(env!("OUT_DIR"), "/all.bin")))
         .map_err(|e| Error::LinderaError(e.to_string()))?;
     let jpreprocess = JPreprocess::with_dictionaries(sdic, Some(u));
     Ok(jpreprocess)

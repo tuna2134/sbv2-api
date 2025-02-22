@@ -15,13 +15,19 @@ fn main_inner() -> anyhow::Result<()> {
             .ok()
             .and_then(|x| x.parse().ok()),
     )?;
+    let mp = env::var("MODEL_PATH")?;
+    let b = fs::read(&mp)?;
     #[cfg(not(feature = "aivmx"))]
     {
-        tts_holder.load_sbv2file(ident, fs::read(env::var("MODEL_PATH")?)?)?;
+        tts_holder.load_sbv2file(ident, b)?;
     }
     #[cfg(feature = "aivmx")]
     {
-        tts_holder.load_aivmx(ident, fs::read(env::var("MODEL_PATH")?)?)?;
+        if mp.ends_with(".sbv2") {
+            tts_holder.load_sbv2file(ident, b)?;
+        } else {
+            tts_holder.load_aivmx(ident, b)?;
+        }
     }
 
     let audio =

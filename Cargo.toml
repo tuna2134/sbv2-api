@@ -2,6 +2,15 @@
 resolver = "2"
 members = ["./crates/sbv2_api", "./crates/sbv2_core", "./crates/sbv2_bindings", "./crates/sbv2_wasm"]
 
+[workspace.package]
+version = "0.2.0-alpha6"
+edition = "2021"
+description = "Style-Bert-VITSの推論ライブラリ"
+license = "MIT"
+readme = "./README.md"
+repository = "https://github.com/tuna2134/sbv2-api"
+documentation = "https://docs.rs/sbv2_core"
+
 [workspace.dependencies]
 anyhow = "1.0.96"
 dotenvy = "0.15.7"
