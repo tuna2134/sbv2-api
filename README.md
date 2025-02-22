@@ -17,7 +17,7 @@ JP-Extra しか対応していません。(基本的に対応する予定もあ�
 
 ## 変換方法
 
-[こちら](https://github.com/tuna2134/sbv2-api/tree/main/convert)を参照してください。
+[こちら](https://github.com/tuna2134/sbv2-api/tree/main/scripts/convert)を参照してください。
 
 ## Todo
 
@@ -119,3 +119,4 @@ curl http://localhost:3000/models
 
 - [litagin02/Style-Bert-VITS2](https://github.com/litagin02/Style-Bert-VITS2) - このコードの書くにあたり、ベースとなる部分を参考にさせていただきました。
 - [Googlefan](https://github.com/Googlefan256) - 彼にモデルを ONNX ヘ変換および効率化をする方法を教わりました。
+- [Aivis Project](https://github.com/Aivis-Project/AivisSpeech-Engine) - 辞書部分

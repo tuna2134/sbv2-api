@@ -1,7 +1,7 @@
 use crate::error::{Error, Result};
 use crate::{jtalk, model, style, tokenizer, tts_util};
 use ndarray::{concatenate, Array1, Array2, Array3, Axis};
-use ort::Session;
+use ort::session::Session;
 use tokenizers::Tokenizer;
 
 #[derive(PartialEq, Eq, Clone)]
@@ -147,7 +147,7 @@ impl TTSModelHolder {
     /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     #[allow(clippy::type_complexity)]
     pub fn parse_text(
-        &self,
+        &mut self,
         text: &str,
     ) -> Result<(Array2<f32>, Array1<i64>, Array1<i64>, Array1<i64>)> {
         crate::tts_util::parse_text_blocking(
@@ -155,15 +155,15 @@ impl TTSModelHolder {
             &self.jtalk,
             &self.tokenizer,
             |token_ids, attention_masks| {
-                crate::bert::predict(&self.bert, token_ids, attention_masks)
+                crate::bert::predict(&mut self.bert, token_ids, attention_masks)
             },
         )
     }
 
-    fn find_model<I: Into<TTSIdent>>(&self, ident: I) -> Result<&TTSModel> {
+    fn find_model<I: Into<TTSIdent>>(&mut self, ident: I) -> Result<&mut TTSModel> {
         let ident = ident.into();
         self.models
-            .iter()
+            .iter_mut()
             .find(|m| m.ident == ident)
             .ok_or(Error::ModelNotFoundError(ident.to_string()))
     }
@@ -209,7 +209,7 @@ impl TTSModelHolder {
     /// # Note
     /// This function is for low-level usage, use `easy_synthesize` for high-level usage.
     pub fn get_style_vector<I: Into<TTSIdent>>(
-        &self,
+        &mut self,
         ident: I,
         style_id: i32,
         weight: f32,
@@ -232,11 +232,6 @@ impl TTSModelHolder {
         options: SynthesizeOptions,
     ) -> Result<Vec<u8>> {
         self.find_and_load_model(ident)?;
-        let vits2 = &self
-            .find_model(ident)?
-            .vits2
-            .as_ref()
-            .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
         let style_vector = self.get_style_vector(ident, style_id, options.style_weight)?;
         let audio_array = if options.split_sentences {
             let texts: Vec<&str> = text.split('\n').collect();
@@ -246,8 +241,14 @@ impl TTSModelHolder {
                     continue;
                 }
                 let (bert_ori, phones, tones, lang_ids) = self.parse_text(t)?;
+
+                let vits2 = self
+                    .find_model(ident)?
+                    .vits2
+                    .as_mut()
+                    .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
                 let audio = model::synthesize(
-                    &vits2,
+                    vits2,
                     bert_ori.to_owned(),
                     phones,
                     tones,
@@ -267,8 +268,14 @@ impl TTSModelHolder {
             )?
         } else {
             let (bert_ori, phones, tones, lang_ids) = self.parse_text(text)?;
+
+            let vits2 = self
+                .find_model(ident)?
+                .vits2
+                .as_mut()
+                .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
             model::synthesize(
-                &vits2,
+                vits2,
                 bert_ori.to_owned(),
                 phones,
                 tones,
@@ -298,13 +305,13 @@ impl TTSModelHolder {
         length_scale: f32,
     ) -> Result<Vec<u8>> {
         self.find_and_load_model(ident)?;
-        let vits2 = &self
+        let vits2 = self
             .find_model(ident)?
             .vits2
-            .as_ref()
+            .as_mut()
             .ok_or(Error::ModelNotFoundError(ident.into().to_string()))?;
         let audio_array = model::synthesize(
-            &vits2,
+            vits2,
             bert_ori.to_owned(),
             phones,
             tones,

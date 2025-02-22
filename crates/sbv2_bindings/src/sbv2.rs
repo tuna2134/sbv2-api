@@ -107,7 +107,7 @@ impl TTSModel {
     /// style_vector : StyleVector
     ///     スタイルベクトル
     fn get_style_vector(
-        &self,
+        &mut self,
         ident: String,
         style_id: i32,
         weight: f32,
@@ -144,7 +144,7 @@ impl TTSModel {
         style_id: i32,
         sdp_ratio: f32,
         length_scale: f32,
-    ) -> anyhow::Result<Bound<PyBytes>> {
+    ) -> anyhow::Result<Bound<'p, PyBytes>> {
         let data = self.model.easy_synthesize(
             ident.as_str(),
             &text,

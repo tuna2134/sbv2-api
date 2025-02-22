@@ -13,7 +13,3 @@ once_cell.workspace = true
 js-sys = "0.3.70"
 ndarray.workspace = true
 wasm-bindgen-futures = "0.4.43"
-
-[profile.release]
-lto = true
-opt-level = "s"
