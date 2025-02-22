@@ -3,6 +3,9 @@
 ## 注意：本バージョンはアルファ版です。
 安定版を利用したい場合は[こちら](https://github.com/tuna2134/sbv2-api/tree/v0.1.x)をご覧ください。
 
+## 注意: オプションの辞書はLGPLです。
+オプションの辞書を使用する場合、バイナリの内部の辞書部分について、LGPLが適用されます。
+
 ## プログラミングに詳しくない方向け
 
 [こちら](https://github.com/tuna2134/sbv2-gui?tab=readme-ov-file)を参照してください。
@@ -29,16 +32,17 @@ JP-Extra しか対応していません。(基本的に対応する予定もあ�
 - [x] GPU 対応(CUDA)
 - [x] GPU 対応(DirectML)
 - [x] GPU 対応(CoreML)
-- [ ] WASM 変換(依存ライブラリの関係により現在は不可)
+- [x] WASM 変換
 - [x] arm64のdockerサポート
+- [x] aivis形式のサポート
 - [ ] MeCabを利用する
 
 ## 構造説明
 
-- `sbv2_api` - 推論用 REST API
-- `sbv2_core` - 推論コア部分
-- `docker` - docker ビルドスクリプト
-- `convert` - onnx, sbv2フォーマットへの変換スクリプト
+- `crates/sbv2_api` - 推論用 REST API
+- `crates/sbv2_core` - 推論コア部分
+- `scripts/docker` - docker ビルドスクリプト
+- `scripts/convert` - onnx, sbv2フォーマットへの変換スクリプト
 
 ## プログラミングある程度できる人向けREST API起動方法
 

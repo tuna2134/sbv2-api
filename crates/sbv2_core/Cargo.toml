@@ -41,4 +41,4 @@ aivmx = ["npyz", "base64"]
 base64 = ["dep:base64"]
 
 [build-dependencies]
-reqwest = { version = "0.12.12", features = ["blocking", "rustls-tls-webpki-roots"], default-features = false }
+ureq = "3.0.6"
