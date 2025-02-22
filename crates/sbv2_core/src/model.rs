@@ -54,11 +54,14 @@ pub fn synthesize(
     session: &mut Session,
     bert_ori: Array2<f32>,
     x_tst: Array1<i64>,
+    mut spk_ids: Array1<i64>,
     tones: Array1<i64>,
     lang_ids: Array1<i64>,
     style_vector: Array1<f32>,
     sdp_ratio: f32,
     length_scale: f32,
+    noise_scale: f32,
+    noise_scale_w: f32,
 ) -> Result<Array3<f32>> {
     let bert_ori = bert_ori.insert_axis(Axis(0));
     let bert_ori = bert_ori.as_standard_layout();
@@ -73,13 +76,18 @@ pub fn synthesize(
     let tones = ort::value::TensorRef::from_array_view(&mut tones)?;
     let mut style_vector = style_vector.insert_axis(Axis(0));
     let style_vector = ort::value::TensorRef::from_array_view(&mut style_vector)?;
-    let sid = vec![1_i64];
-    let sid = ort::value::TensorRef::from_array_view((vec![1_i64], sid.as_slice()))?;
+    let sid = ort::value::TensorRef::from_array_view(&mut spk_ids)?;
     let sdp_ratio = vec![sdp_ratio];
     let sdp_ratio = ort::value::TensorRef::from_array_view((vec![1_i64], sdp_ratio.as_slice()))?;
     let length_scale = vec![length_scale];
     let length_scale =
         ort::value::TensorRef::from_array_view((vec![1_i64], length_scale.as_slice()))?;
+    let noise_scale = vec![noise_scale];
+    let noise_scale =
+        ort::value::TensorRef::from_array_view((vec![1_i64], noise_scale.as_slice()))?;
+    let noise_scale_w = vec![noise_scale_w];
+    let noise_scale_w =
+        ort::value::TensorRef::from_array_view((vec![1_i64], noise_scale_w.as_slice()))?;
     let outputs = session.run(ort::inputs! {
         "x_tst" =>  x_tst,
         "x_tst_lengths" => x_tst_lengths,
@@ -90,6 +98,8 @@ pub fn synthesize(
         "style_vec" => style_vector,
         "sdp_ratio" => sdp_ratio,
         "length_scale" => length_scale,
+        "noise_scale" => noise_scale,
+        "noise_scale_w" => noise_scale_w,
     })?;
 
     let audio_array = outputs["output"]

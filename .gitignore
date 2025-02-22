@@ -7,3 +7,4 @@ output.wav
 node_modules
 dist/
 *.csv
+*.bin
