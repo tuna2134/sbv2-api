@@ -1,5 +1,7 @@
-use std::fs;
+use std::env;
+use std::fs::{self, hard_link};
 use std::io::copy;
+use std::path::PathBuf;
 
 use home_dir::HomeDirExt;
 
@@ -18,6 +20,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut file = fs::File::create(&out_path)?;
         copy(&mut response, &mut file)?;
     }
+    hard_link(
+        out_path,
+        PathBuf::from(&env::var("OUT_DIR").unwrap()).join("out.bin"),
+    )
+    .unwrap();
     println!("cargo:rerun-if-changed=build.rs");
     Ok(())
 }
