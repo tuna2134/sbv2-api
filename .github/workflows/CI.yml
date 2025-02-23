@@ -29,6 +29,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - run: apt-get update && apt-get install -y openssl libssl-dev pkg-config curl
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -36,9 +37,8 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
-          container: ubuntu
+          container: off
           working-directory: ./crates/sbv2_bindings
-          before-script-linux: apt-get update && apt-get install -y openssl libssl-dev pkg-config curl
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
