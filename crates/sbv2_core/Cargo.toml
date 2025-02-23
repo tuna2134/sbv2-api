@@ -43,4 +43,5 @@ aivmx = ["npyz", "base64"]
 base64 = ["dep:base64"]
 
 [build-dependencies]
+home-dir = "0.1.0"
 ureq = "3.0.6"
