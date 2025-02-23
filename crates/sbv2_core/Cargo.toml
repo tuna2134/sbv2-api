@@ -44,4 +44,3 @@ base64 = ["dep:base64"]
 
 [build-dependencies]
 ureq = "3.0.6"
-home-dir = "0.1.0"
