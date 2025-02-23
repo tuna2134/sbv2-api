@@ -119,7 +119,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - run: gh run download ${{ github.run_id }}
+      - run: gh run download ${{ github.run_id }} -p wheels-*
       - name: release
         run: |
           gh release create commit-${GITHUB_SHA:0:8} --prerelease wheels-*/*
@@ -134,7 +134,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - run: gh run download ${{ github.run_id }}
+      - run: gh run download ${{ github.run_id }} -p wheels-*
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         with:
