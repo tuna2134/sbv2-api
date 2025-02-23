@@ -22,7 +22,7 @@ jobs:
         platform:
           - runner: ubuntu-latest
             target: x86_64
-          - runner: ubuntu-latest
+          - runner: macos-latest
             target: aarch64
     steps:
       - uses: actions/checkout@v4
