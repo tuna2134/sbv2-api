@@ -31,13 +31,14 @@ jobs:
           python-version: 3.x
       - uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/arm64,linux/amd64
-      - run: docker build . -f .github/workflows/CI.Dockerfile --tag ci
+          platforms: linux/${{ matrix.platform.target }}
+      - run: docker build . -f .github/workflows/CI.Dockerfile --tag ci --platform linux/${{ matrix.platform.target }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
+          docker-options: --platform linux/${{ matrix.platform.target }}
           sccache: 'true'
           manylinux: auto
           container: ci
