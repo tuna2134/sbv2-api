@@ -38,7 +38,6 @@ jobs:
           sccache: 'true'
           manylinux: auto
           working-directory: ./crates/sbv2_bindings
-          container: quay.io/pypa/manylinux2014_x86_64:latest
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
