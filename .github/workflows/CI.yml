@@ -22,23 +22,19 @@ jobs:
         platform:
           - runner: ubuntu-latest
             target: x86_64
-          - runner: ubuntu-latest
+          - runner: ubuntu-24.04-arm64
             target: aarch64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/${{ matrix.platform.target }}
-      - run: docker build . -f .github/workflows/CI.Dockerfile --tag ci --platform linux/${{ matrix.platform.target }}
+      - run: docker build . -f .github/workflows/CI.Dockerfile --tag ci
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
-          docker-options: --platform linux/${{ matrix.platform.target }}
           sccache: 'true'
           manylinux: auto
           container: ci
