@@ -38,6 +38,7 @@ jobs:
           manylinux: auto
           container: ghcr.io/pyo3/maturin
           working-directory: ./crates/sbv2_bindings
+          before-script-linux: command -v yum >/dev/null 2>&1 && { yum -y install openssl openssl-devel pkgconfig; } || { command -v apt-get >/dev/null 2>&1 && { apt-get update && apt-get install -y openssl libssl-dev pkg-config; } || { command -v apk >/dev/null 2>&1 && { apk add --no-cache openssl openssl-dev pkgconfig; } || { command -v pacman >/dev/null 2>&1 && { pacman -Sy --noconfirm openssl pkg-config; } || { command -v zypper >/dev/null 2>&1 && { zypper --non-interactive install openssl openssl-devel pkg-config; } || { echo "No supported package manager found"; exit 1; } } } } }
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
