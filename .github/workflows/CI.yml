@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [python-linux, python-windows, python-macos, python-sdist]
     steps:
-      - uses: actions/download-artifact@v4
+      - run: gh run download ${{github.run_id}} -n wheels-*/*
       - name: release
         run: |
           gh release create commit-${GITHUB_SHA:0:8} --prerelease wheels-*/*
@@ -128,7 +128,7 @@ jobs:
     needs: [python-linux, python-windows, python-macos, python-sdist]
     environment: release
     steps:
-      - uses: actions/download-artifact@v4
+      - run: gh run download ${{github.run_id}} -n wheels-*/*
       - name: Publish to PyPI
         uses: PyO3/maturin-action@v1
         with:
