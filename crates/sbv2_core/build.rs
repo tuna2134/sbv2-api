@@ -10,7 +10,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let out_path = PathBuf::from(&env::var("OUT_DIR").unwrap()).join("all.bin");
     println!("cargo:rerun-if-changed=build.rs");
     if static_path.exists() {
-        fs::hard_link(static_path, out_path).unwrap();
+        if fs::hard_link(&static_path, &out_path).is_err() {
+            fs::copy(static_path, out_path).unwrap();
+        };
     } else {
         println!("cargo:warning=Downloading dictionary file...");
         let mut response =
