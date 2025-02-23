@@ -38,7 +38,7 @@ jobs:
           manylinux: auto
           container: ubuntu
           working-directory: ./crates/sbv2_bindings
-          before-script-linux: apt-get update && apt-get install -y openssl libssl-dev pkg-config
+          before-script-linux: apt-get update && apt-get install -y openssl libssl-dev pkg-config curl
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
