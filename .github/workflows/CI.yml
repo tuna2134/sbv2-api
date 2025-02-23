@@ -34,7 +34,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
-          before-script-linux: command -v yum >/dev/null 2>&1 && { sudo yum -y install openssl openssl-devel; } || { command -v apt-get >/dev/null 2>&1 && { sudo apt-get update && sudo apt-get install -y openssl libssl-dev; } || { command -v apk >/dev/null 2>&1 && { sudo apk add --no-cache openssl openssl-dev; } || { command -v pacman >/dev/null 2>&1 && { sudo pacman -Sy --noconfirm openssl; } || { command -v zypper >/dev/null 2>&1 && { sudo zypper --non-interactive install openssl openssl-devel; } || { echo "No supported package manager found"; exit 1; } } } } }
+          before-script-linux: command -v yum >/dev/null 2>&1 && { yum -y install openssl openssl-devel; } || { command -v apt-get >/dev/null 2>&1 && { apt-get update && apt-get install -y openssl libssl-dev; } || { command -v apk >/dev/null 2>&1 && { apk add --no-cache openssl openssl-dev; } || { command -v pacman >/dev/null 2>&1 && { pacman -Sy --noconfirm openssl; } || { command -v zypper >/dev/null 2>&1 && { zypper --non-interactive install openssl openssl-devel; } || { echo "No supported package manager found"; exit 1; } } } } }
           sccache: 'true'
           manylinux: auto
           working-directory: ./crates/sbv2_bindings
