@@ -48,8 +48,11 @@ JP-Extra しか対応していません。(基本的に対応する予定もあ�
 
 ### models をインストール
 
-https://huggingface.co/googlefan/sbv2_onnx_models/tree/main
-の`tokenizer.json`,`debert.onnx`,`tsukuyomi.sbv2`を models フォルダに配置
+https://huggingface.co/neody/sbv2-api-assets/tree/main/deberta
+から`tokenizer.json`,`debert.onnx`
+https://huggingface.co/neody/sbv2-api-assets/tree/main/model
+から`tsukuyomi.sbv2`
+を models フォルダに配置
 
 ### .env ファイルの作成
 
@@ -118,6 +121,7 @@ curl http://localhost:3000/models
 - `ADDR` `localhost:3000`などのようにサーバー起動アドレスをコントロールできます。
 - `MODELS_PATH` sbv2モデルの存在するフォルダを指定できます。
 - `RUST_LOG` おなじみlog levelです。
+- `HOLDER_MAX_LOADED_MODElS` RAMにロードされるモデルの最大数を指定します。
 
 ## 謝辞
 
