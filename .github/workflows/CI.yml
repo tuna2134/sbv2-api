@@ -30,6 +30,8 @@ jobs:
         with:
           python-version: 3.x
       - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64,linux/amd64
       - run: docker build . -f .github/workflows/CI.Dockerfile --tag ci
       - name: Build wheels
         uses: PyO3/maturin-action@v1
