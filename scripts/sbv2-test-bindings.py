@@ -12,7 +12,7 @@ def main():
     style_vector = model.get_style_vector("amitaro", 0, 1.0)
     with open("output.wav", "wb") as f:
         f.write(
-            model.synthesize("おはようございます。", "amitaro", style_vector, 0.0, 0.5)
+            model.synthesize("おはようございます。", "amitaro", 0, 0, 0.0, 0.5)
         )
 
 
